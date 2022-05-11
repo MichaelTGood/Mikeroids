@@ -15,9 +15,14 @@ public class Player : MonoBehaviour
     public float respawnDelay = 3f;
     public float respawnInvulnerability = 3f;
 
+    private Vector2 screenBoundsMin;
+    private Vector2 screenBoundsMax;
+
     private void Awake()
     {
         rigidbody = GetComponent<Rigidbody2D>();
+        screenBoundsMin = Camera.main.ScreenToWorldPoint(Vector3.zero);
+        screenBoundsMax = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0f));
     }
 
     private void OnEnable()
@@ -53,6 +58,16 @@ public class Player : MonoBehaviour
 
         if (turnDirection != 0f) {
             rigidbody.AddTorque(rotationSpeed * turnDirection);
+        }
+
+        if (rigidbody.position.x > screenBoundsMax.x + 0.5f) {
+            rigidbody.position = new Vector2(screenBoundsMin.x - 0.5f, rigidbody.position.y);
+        } else if (rigidbody.position.x < screenBoundsMin.x - 0.5f) {
+            rigidbody.position = new Vector2(screenBoundsMax.x + 0.5f, rigidbody.position.y);
+        } else if (rigidbody.position.y > screenBoundsMax.y + 0.5f) {
+            rigidbody.position = new Vector2(rigidbody.position.x, screenBoundsMin.y - 0.5f);
+        } else if (rigidbody.position.y < screenBoundsMin.y - 0.5f) {
+            rigidbody.position = new Vector2(rigidbody.position.x, screenBoundsMax.y + 0.5f);
         }
     }
 
