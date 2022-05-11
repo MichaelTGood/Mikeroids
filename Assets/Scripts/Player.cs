@@ -15,14 +15,16 @@ public class Player : MonoBehaviour
     public float respawnDelay = 3f;
     public float respawnInvulnerability = 3f;
 
-    private Vector2 screenBoundsMin;
-    private Vector2 screenBoundsMax;
+    private Bounds screenBounds;
 
     private void Awake()
     {
         rigidbody = GetComponent<Rigidbody2D>();
-        screenBoundsMin = Camera.main.ScreenToWorldPoint(Vector3.zero);
-        screenBoundsMax = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0f));
+
+        // Convert screen space bounds to world space bounds
+        screenBounds = new Bounds();
+        screenBounds.Encapsulate(Camera.main.ScreenToWorldPoint(Vector3.zero));
+        screenBounds.Encapsulate(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0f)));
     }
 
     private void OnEnable()
@@ -60,14 +62,14 @@ public class Player : MonoBehaviour
             rigidbody.AddTorque(rotationSpeed * turnDirection);
         }
 
-        if (rigidbody.position.x > screenBoundsMax.x + 0.5f) {
-            rigidbody.position = new Vector2(screenBoundsMin.x - 0.5f, rigidbody.position.y);
-        } else if (rigidbody.position.x < screenBoundsMin.x - 0.5f) {
-            rigidbody.position = new Vector2(screenBoundsMax.x + 0.5f, rigidbody.position.y);
-        } else if (rigidbody.position.y > screenBoundsMax.y + 0.5f) {
-            rigidbody.position = new Vector2(rigidbody.position.x, screenBoundsMin.y - 0.5f);
-        } else if (rigidbody.position.y < screenBoundsMin.y - 0.5f) {
-            rigidbody.position = new Vector2(rigidbody.position.x, screenBoundsMax.y + 0.5f);
+        if (rigidbody.position.x > screenBounds.max.x + 0.5f) {
+            rigidbody.position = new Vector2(screenBounds.min.x - 0.5f, rigidbody.position.y);
+        } else if (rigidbody.position.x < screenBounds.min.x - 0.5f) {
+            rigidbody.position = new Vector2(screenBounds.max.x + 0.5f, rigidbody.position.y);
+        } else if (rigidbody.position.y > screenBounds.max.y + 0.5f) {
+            rigidbody.position = new Vector2(rigidbody.position.x, screenBounds.min.y - 0.5f);
+        } else if (rigidbody.position.y < screenBounds.min.y - 0.5f) {
+            rigidbody.position = new Vector2(rigidbody.position.x, screenBounds.max.y + 0.5f);
         }
     }
 
