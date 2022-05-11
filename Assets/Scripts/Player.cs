@@ -62,6 +62,7 @@ public class Player : MonoBehaviour
             rigidbody.AddTorque(rotationSpeed * turnDirection);
         }
 
+        // Wrap to the other side of the screen if the player goes off screen
         if (rigidbody.position.x > screenBounds.max.x + 0.5f) {
             rigidbody.position = new Vector2(screenBounds.min.x - 0.5f, rigidbody.position.y);
         } else if (rigidbody.position.x < screenBounds.min.x - 0.5f) {
