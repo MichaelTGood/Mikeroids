@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
 	private ParticleSystem _explosionEffect;
 
 	[SerializeField]
-	private GameObject _gameObject;
+	private GameObject _gameOverUI;
 
 	[SerializeField]
 	private Text _scoreText;
@@ -37,12 +37,9 @@ public class GameManager : MonoBehaviour
 		NewGame();
 	}
 
-	private void Update()
+	private void OnEnable()
 	{
-		if (_lives <= 0 && Input.GetKeyDown(KeyCode.Return))
-		{
-			NewGame();
-		}
+		InputManager.Menu.Enter.started += _ => NewGame();
 	}
 
 	#endregion
@@ -98,7 +95,7 @@ public class GameManager : MonoBehaviour
 			Destroy(asteroids[i].gameObject);
 		}
 
-		_gameObject.SetActive(false);
+		_gameOverUI.SetActive(false);
 
 		SetScore(0);
 		SetLives(3);
@@ -109,11 +106,13 @@ public class GameManager : MonoBehaviour
 	{
 		_player.transform.position = Vector3.zero;
 		_player.gameObject.SetActive(true);
+		InputManager.SwitchToActionMap(InputManager.ShipStandard);
 	}
 
 	private void GameOver()
 	{
-		_gameObject.SetActive(true);
+		_gameOverUI.SetActive(true);
+		InputManager.SwitchToActionMap(InputManager.Menu);
 	}
 
 	private void SetScore(int score)
