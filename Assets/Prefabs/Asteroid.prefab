@@ -49,6 +49,7 @@ SpriteRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -143,13 +144,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16ab32283fc743344aafff56f9f8983a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sprites:
+  _rigidbody: {fileID: 2538125824281061376}
+  _spriteRenderer: {fileID: 2538125824281061377}
+  _sprites:
   - {fileID: 21300000, guid: bc0ebac591d0ccf4f9f124ee6ecf998e, type: 3}
   - {fileID: 21300000, guid: 5a1917322cb295449bf7552a48bba38e, type: 3}
   - {fileID: 21300000, guid: 858c9cd8f5aa40c4eb8f181d3a3d0e50, type: 3}
   - {fileID: 21300000, guid: b3b84f8ff9ae1104cbcc0c1a9308590c, type: 3}
-  size: 1
-  minSize: 0.35
-  maxSize: 1.65
-  movementSpeed: 50
-  maxLifetime: 30
+  _size: 1
+  _minSize: 0.35
+  _maxSize: 1.65
+  _movementSpeed: 50
+  _maxLifetime: 30

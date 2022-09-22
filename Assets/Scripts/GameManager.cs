@@ -3,92 +3,130 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public Player player;
-    public ParticleSystem explosionEffect;
-    public GameObject gameOverUI;
+	#region Editor Variables
 
-    public int score { get; private set; }
-    public Text scoreText;
+	[SerializeField]
+	private Player _player;
 
-    public int lives { get; private set; }
-    public Text livesText;
+	[SerializeField]
+	private ParticleSystem _explosionEffect;
 
-    private void Start()
-    {
-        NewGame();
-    }
+	[SerializeField]
+	private GameObject _gameObject;
 
-    private void Update()
-    {
-        if (lives <= 0 && Input.GetKeyDown(KeyCode.Return)) {
-            NewGame();
-        }
-    }
+	[SerializeField]
+	private Text _scoreText;
 
-    public void NewGame()
-    {
-        Asteroid[] asteroids = FindObjectsOfType<Asteroid>();
+	[SerializeField]
+	private Text _livesText;
 
-        for (int i = 0; i < asteroids.Length; i++) {
-            Destroy(asteroids[i].gameObject);
-        }
+	#endregion
 
-        gameOverUI.SetActive(false);
+	#region Variables
 
-        SetScore(0);
-        SetLives(3);
-        Respawn();
-    }
+	private int _score;
 
-    public void Respawn()
-    {
-        player.transform.position = Vector3.zero;
-        player.gameObject.SetActive(true);
-    }
+	private int _lives;
 
-    public void AsteroidDestroyed(Asteroid asteroid)
-    {
-        explosionEffect.transform.position = asteroid.transform.position;
-        explosionEffect.Play();
+	#endregion
 
-        if (asteroid.size < 0.7f) {
-            SetScore(score + 100); // small asteroid
-        } else if (asteroid.size < 1.4f) {
-            SetScore(score + 50); // medium asteroid
-        } else {
-            SetScore(score + 25); // large asteroid
-        }
-    }
+	#region Lifecycle
 
-    public void PlayerDeath(Player player)
-    {
-        explosionEffect.transform.position = player.transform.position;
-        explosionEffect.Play();
+	private void Start()
+	{
+		NewGame();
+	}
 
-        SetLives(lives - 1);
+	private void Update()
+	{
+		if (_lives <= 0 && Input.GetKeyDown(KeyCode.Return))
+		{
+			NewGame();
+		}
+	}
 
-        if (lives <= 0) {
-            GameOver();
-        } else {
-            Invoke(nameof(Respawn), player.respawnDelay);
-        }
-    }
+	#endregion
 
-    public void GameOver()
-    {
-        gameOverUI.SetActive(true);
-    }
+	#region Public Methods
 
-    private void SetScore(int score)
-    {
-        this.score = score;
-        scoreText.text = score.ToString();
-    }
+	public void AsteroidDestroyed(Asteroid asteroid)
+	{
+		_explosionEffect.transform.position = asteroid.transform.position;
+		_explosionEffect.Play();
 
-    private void SetLives(int lives)
-    {
-        this.lives = lives;
-        livesText.text = lives.ToString();
-    }
+		if (asteroid.Size < 0.7f)		// small asteroid
+		{
+			SetScore(_score + 100);
+		}
+		else if (asteroid.Size < 1.4f)	// medium asteroid
+		{
+			SetScore(_score + 50);
+		}
+		else							// large asteroid
+		{
+			SetScore(_score + 25);
+		}
+	}
 
+	public void PlayerDeath(Player player)
+	{
+		_explosionEffect.transform.position = player.transform.position;
+		_explosionEffect.Play();
+
+		SetLives(_lives - 1);
+
+		if (_lives <= 0)
+		{
+			GameOver();
+		}
+		else
+		{
+			Invoke(nameof(Respawn), player.RespawnDelay);
+		}
+	}
+
+	#endregion
+
+	#region Private Methods
+
+	private void NewGame()
+	{
+		Asteroid[] asteroids = FindObjectsOfType<Asteroid>();
+
+		for(int i = 0; i < asteroids.Length; i++)
+		{
+			Destroy(asteroids[i].gameObject);
+		}
+
+		_gameObject.SetActive(false);
+
+		SetScore(0);
+		SetLives(3);
+		Respawn();
+	}
+
+	private void Respawn()
+	{
+		_player.transform.position = Vector3.zero;
+		_player.gameObject.SetActive(true);
+	}
+
+	private void GameOver()
+	{
+		_gameObject.SetActive(true);
+	}
+
+	private void SetScore(int score)
+	{
+		_score = score;
+		_scoreText.text = score.ToString();
+	}
+
+	private void SetLives(int lives)
+	{
+		_lives = lives;
+		_livesText.text = lives.ToString();
+	}
+
+	#endregion
 }
