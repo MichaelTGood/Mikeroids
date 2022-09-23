@@ -6,6 +6,7 @@ public class Asteroid : MonoBehaviour
 {
 	#region Editor Variables
 
+	[Header("Game Objects")]
 	[SerializeField]
 	private Rigidbody2D _rigidbody;
 
@@ -13,8 +14,12 @@ public class Asteroid : MonoBehaviour
 	private SpriteRenderer _spriteRenderer;
 
 	[SerializeField]
+	private UpgradeView _upgradePrefab;
+
+	[SerializeField]
 	private Sprite[] _sprites;
 
+	[Header("Asteroid Settings")]
 	[SerializeField]
 	private float _size = 1f;
 
@@ -29,6 +34,10 @@ public class Asteroid : MonoBehaviour
 
 	[SerializeField]
 	private float _maxLifetime = 30f;
+
+	[Header("Other Settings")]
+	[SerializeField, Range(0,1)]
+	private float _upgradeChance = 0.33f;
 
 	#endregion
 
@@ -84,7 +93,15 @@ public class Asteroid : MonoBehaviour
 			if ((_size * 0.5f) >= _minSize)
 			{
 				CreateSplit();
-				CreateSplit();
+
+				if(Random.value <= _upgradeChance)
+				{
+					CreateUpgrade();
+				}
+				else
+				{
+					CreateSplit();
+				}
 			}
 
 			FindObjectOfType<GameManager>().AsteroidDestroyed(this);
@@ -110,6 +127,22 @@ public class Asteroid : MonoBehaviour
 		half.SetTrajectory(Random.insideUnitCircle.normalized);
 
 		return half;
+	}
+
+	private UpgradeView CreateUpgrade()
+	{
+		// Set the new asteroid poistion to be the same as the current asteroid
+		// but with a slight offset so they do not spawn inside each other
+		Vector2 position = transform.position;
+		position += Random.insideUnitCircle * 0.5f;
+
+		// Create the new asteroid at half the size of the current
+		UpgradeView upgrade = Instantiate(_upgradePrefab, position, transform.rotation);
+
+		// Set a random trajectory
+		upgrade.SetTrajectory(Random.insideUnitCircle.normalized);
+
+		return upgrade;
 	}
 
 	#endregion

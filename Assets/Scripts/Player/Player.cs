@@ -18,10 +18,13 @@ public class Player : MonoBehaviour
 
 	[Header("GameObjects")]
 	[SerializeField]
-	private Camera _mainCamera;
+	private Rigidbody2D _rigidbody;
 
 	[SerializeField]
-	private Rigidbody2D _rigidbody;
+	private GameManager _gameManager;
+
+	[SerializeField]
+	private Camera _mainCamera;
 	
 	[SerializeField]
 	private Bullet _bulletPrefab;
@@ -176,7 +179,7 @@ public class Player : MonoBehaviour
 			_rigidbody.angularVelocity = 0f;
 			gameObject.SetActive(false);
 
-			FindObjectOfType<GameManager>().PlayerDeath(this);
+			_gameManager.PlayerDeath(this);
 		}
 	}
 

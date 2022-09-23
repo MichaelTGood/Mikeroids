@@ -146,6 +146,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rigidbody: {fileID: 2538125824281061376}
   _spriteRenderer: {fileID: 2538125824281061377}
+  _upgradePrefab: {fileID: 2688955344829392769, guid: 004fbd426a6d19842a88e455f48a2991,
+    type: 3}
   _sprites:
   - {fileID: 21300000, guid: bc0ebac591d0ccf4f9f124ee6ecf998e, type: 3}
   - {fileID: 21300000, guid: 5a1917322cb295449bf7552a48bba38e, type: 3}
@@ -156,3 +158,4 @@ MonoBehaviour:
   _maxSize: 1.65
   _movementSpeed: 50
   _maxLifetime: 30
+  _upgradeChance: 0.33
