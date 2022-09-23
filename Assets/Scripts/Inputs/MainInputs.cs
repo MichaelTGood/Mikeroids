@@ -33,14 +33,6 @@ public class @MainInputs : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Analog"",
                     ""processors"": ""Invert"",
                     ""interactions"": """"
-                },
-                {
-                    ""name"": ""Fire"",
-                    ""type"": ""Button"",
-                    ""id"": ""a8fe957b-c301-4346-8596-90922a4bd6df"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -131,50 +123,6 @@ public class @MainInputs : IInputActionCollection, IDisposable
                     ""action"": ""Rotate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""89bba2c0-e20e-46c3-9559-a7642d2c4f86"",
-                    ""path"": ""<Gamepad>/rightTrigger"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Controller"",
-                    ""action"": ""Fire"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""a081425b-8bdb-4ffd-b360-b4207140609b"",
-                    ""path"": ""<Gamepad>/rightShoulder"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Controller"",
-                    ""action"": ""Fire"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""ffa37143-3ee7-4a27-a28a-38a26e629931"",
-                    ""path"": ""<Keyboard>/space"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Fire"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""b1c01c2f-f32a-4870-9185-b40d6b8edb4a"",
-                    ""path"": ""<Mouse>/leftButton"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Fire"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -237,6 +185,66 @@ public class @MainInputs : IInputActionCollection, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""WeaponsSystem"",
+            ""id"": ""c9e13d37-7788-4d14-953f-5b2b35fccc1c"",
+            ""actions"": [
+                {
+                    ""name"": ""Fire"",
+                    ""type"": ""Button"",
+                    ""id"": ""50e75412-504d-4e1e-8c02-b51dce9e0de0"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""27db5aff-04d9-4e5d-a18a-e644aa735277"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Controller"",
+                    ""action"": ""Fire"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d6fb9748-7e82-4c43-bc83-d8e1b446b591"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Controller"",
+                    ""action"": ""Fire"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1b22b021-3b13-48f7-b867-a71ce73b769c"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""Fire"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""76a2acf7-0b59-4e8a-95ec-3a7f79297f01"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""Fire"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -273,10 +281,12 @@ public class @MainInputs : IInputActionCollection, IDisposable
         m_ShipStandard = asset.FindActionMap("Ship Standard", throwIfNotFound: true);
         m_ShipStandard_Forward = m_ShipStandard.FindAction("Forward", throwIfNotFound: true);
         m_ShipStandard_Rotate = m_ShipStandard.FindAction("Rotate", throwIfNotFound: true);
-        m_ShipStandard_Fire = m_ShipStandard.FindAction("Fire", throwIfNotFound: true);
         // Menu
         m_Menu = asset.FindActionMap("Menu", throwIfNotFound: true);
         m_Menu_Enter = m_Menu.FindAction("Enter", throwIfNotFound: true);
+        // WeaponsSystem
+        m_WeaponsSystem = asset.FindActionMap("WeaponsSystem", throwIfNotFound: true);
+        m_WeaponsSystem_Fire = m_WeaponsSystem.FindAction("Fire", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -328,14 +338,12 @@ public class @MainInputs : IInputActionCollection, IDisposable
     private IShipStandardActions m_ShipStandardActionsCallbackInterface;
     private readonly InputAction m_ShipStandard_Forward;
     private readonly InputAction m_ShipStandard_Rotate;
-    private readonly InputAction m_ShipStandard_Fire;
     public struct ShipStandardActions
     {
         private @MainInputs m_Wrapper;
         public ShipStandardActions(@MainInputs wrapper) { m_Wrapper = wrapper; }
         public InputAction @Forward => m_Wrapper.m_ShipStandard_Forward;
         public InputAction @Rotate => m_Wrapper.m_ShipStandard_Rotate;
-        public InputAction @Fire => m_Wrapper.m_ShipStandard_Fire;
         public InputActionMap Get() { return m_Wrapper.m_ShipStandard; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -351,9 +359,6 @@ public class @MainInputs : IInputActionCollection, IDisposable
                 @Rotate.started -= m_Wrapper.m_ShipStandardActionsCallbackInterface.OnRotate;
                 @Rotate.performed -= m_Wrapper.m_ShipStandardActionsCallbackInterface.OnRotate;
                 @Rotate.canceled -= m_Wrapper.m_ShipStandardActionsCallbackInterface.OnRotate;
-                @Fire.started -= m_Wrapper.m_ShipStandardActionsCallbackInterface.OnFire;
-                @Fire.performed -= m_Wrapper.m_ShipStandardActionsCallbackInterface.OnFire;
-                @Fire.canceled -= m_Wrapper.m_ShipStandardActionsCallbackInterface.OnFire;
             }
             m_Wrapper.m_ShipStandardActionsCallbackInterface = instance;
             if (instance != null)
@@ -364,9 +369,6 @@ public class @MainInputs : IInputActionCollection, IDisposable
                 @Rotate.started += instance.OnRotate;
                 @Rotate.performed += instance.OnRotate;
                 @Rotate.canceled += instance.OnRotate;
-                @Fire.started += instance.OnFire;
-                @Fire.performed += instance.OnFire;
-                @Fire.canceled += instance.OnFire;
             }
         }
     }
@@ -404,6 +406,39 @@ public class @MainInputs : IInputActionCollection, IDisposable
         }
     }
     public MenuActions @Menu => new MenuActions(this);
+
+    // WeaponsSystem
+    private readonly InputActionMap m_WeaponsSystem;
+    private IWeaponsSystemActions m_WeaponsSystemActionsCallbackInterface;
+    private readonly InputAction m_WeaponsSystem_Fire;
+    public struct WeaponsSystemActions
+    {
+        private @MainInputs m_Wrapper;
+        public WeaponsSystemActions(@MainInputs wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Fire => m_Wrapper.m_WeaponsSystem_Fire;
+        public InputActionMap Get() { return m_Wrapper.m_WeaponsSystem; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(WeaponsSystemActions set) { return set.Get(); }
+        public void SetCallbacks(IWeaponsSystemActions instance)
+        {
+            if (m_Wrapper.m_WeaponsSystemActionsCallbackInterface != null)
+            {
+                @Fire.started -= m_Wrapper.m_WeaponsSystemActionsCallbackInterface.OnFire;
+                @Fire.performed -= m_Wrapper.m_WeaponsSystemActionsCallbackInterface.OnFire;
+                @Fire.canceled -= m_Wrapper.m_WeaponsSystemActionsCallbackInterface.OnFire;
+            }
+            m_Wrapper.m_WeaponsSystemActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @Fire.started += instance.OnFire;
+                @Fire.performed += instance.OnFire;
+                @Fire.canceled += instance.OnFire;
+            }
+        }
+    }
+    public WeaponsSystemActions @WeaponsSystem => new WeaponsSystemActions(this);
     private int m_ControllerSchemeIndex = -1;
     public InputControlScheme ControllerScheme
     {
@@ -426,10 +461,13 @@ public class @MainInputs : IInputActionCollection, IDisposable
     {
         void OnForward(InputAction.CallbackContext context);
         void OnRotate(InputAction.CallbackContext context);
-        void OnFire(InputAction.CallbackContext context);
     }
     public interface IMenuActions
     {
         void OnEnter(InputAction.CallbackContext context);
+    }
+    public interface IWeaponsSystemActions
+    {
+        void OnFire(InputAction.CallbackContext context);
     }
 }

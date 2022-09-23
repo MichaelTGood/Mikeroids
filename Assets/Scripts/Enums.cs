@@ -16,3 +16,10 @@ public enum WeaponUpgradeTypes
 	DualShot,
 	BigBlaster,
 }
+
+public enum FireRate
+{
+	Single,
+	Burst,
+	FullAuto,
+}

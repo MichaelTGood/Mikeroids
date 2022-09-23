@@ -47,6 +47,12 @@ public class UpgradeView : MonoBehaviour
 
 		#endregion
 
+		#region Properties
+
+		public Upgrade Upgrade => _upgrade;
+
+		#endregion
+
 		private void Awake()
 		{
 			_upgrade = new Upgrade();
@@ -75,21 +81,13 @@ public class UpgradeView : MonoBehaviour
 
 		#region Public Methods
 
-		public void SetTrajectory(Vector2 direction)
+		public void SetTrajectory(Vector3 direction)
 		{
-			Transform playerTransform= FindObjectOfType<Player>().transform;
-			Vector2 trajectory = playerTransform.position - transform.position;
+			Player player = FindObjectOfType<Player>();
+			Vector3 goalTransform = player != null ? player.transform.position : direction;
+			Vector2 trajectory = goalTransform - transform.position;
 			_rigidbody.AddForce(trajectory.normalized * _movementSpeed);
 			
-		}
-
-		#endregion
-
-		#region Private Methods
-
-		private void OnTriggerEnter2D(Collider2D col)
-		{
-			throw new NotImplementedException();
 		}
 
 		#endregion

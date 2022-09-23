@@ -65,9 +65,9 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-	public void PlayerDeath(Player player)
+	public void PlayerDeath()
 	{
-		_explosionEffect.transform.position = player.transform.position;
+		_explosionEffect.transform.position = _player.transform.position;
 		_explosionEffect.Play();
 
 		SetLives(_lives - 1);
@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviour
 		}
 		else
 		{
-			Invoke(nameof(Respawn), player.RespawnDelay);
+			Invoke(nameof(Respawn), _player.RespawnDelay);
 		}
 	}
 
@@ -104,15 +104,13 @@ public class GameManager : MonoBehaviour
 
 	private void Respawn()
 	{
-		_player.transform.position = Vector3.zero;
-		_player.gameObject.SetActive(true);
-		InputManager.SwitchToActionMap(InputManager.ShipStandard);
+		_player.Spawn();
 	}
 
 	private void GameOver()
 	{
 		_gameOverUI.SetActive(true);
-		InputManager.SwitchToActionMap(InputManager.Menu);
+		InputManager.SwitchToMenuInputMap();
 	}
 
 	private void SetScore(int score)
@@ -128,4 +126,5 @@ public class GameManager : MonoBehaviour
 	}
 
 	#endregion
+
 }

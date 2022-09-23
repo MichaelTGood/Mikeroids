@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Security.Cryptography;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -19,6 +21,9 @@ public class Player : MonoBehaviour
 	[Header("GameObjects")]
 	[SerializeField]
 	private Rigidbody2D _rigidbody;
+
+	[SerializeField]
+	private WeaponSystem _weaponSystem;
 
 	[SerializeField]
 	private GameManager _gameManager;
@@ -65,11 +70,11 @@ public class Player : MonoBehaviour
 
 	private void Awake()
 	{
-		InputManager.SwitchToActionMap(InputManager.ShipStandard);
-
 		_screenBounds = new Bounds();
 		_screenBounds.Encapsulate(_mainCamera.ScreenToWorldPoint(Vector3.zero));
 		_screenBounds.Encapsulate(_mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0f)));
+
+		Spawn();
 	}
 
 	private void OnEnable()
@@ -118,6 +123,18 @@ public class Player : MonoBehaviour
 
 	#endregion
 
+	#region Public Methods
+
+	public void Spawn()
+	{
+		transform.position = Vector3.zero;
+		InputManager.SwitchToStandarShipInputMap();
+		_weaponSystem.Initialize();
+		gameObject.SetActive(true);
+	}
+
+	#endregion
+
 	#region Private Methods
 
 	private void HandleSubscriptions(bool subscribe)
@@ -127,14 +144,12 @@ public class Player : MonoBehaviour
 			InputManager.ShipStandard.Forward.performed += OnMoveForward;
 			InputManager.ShipStandard.Rotate.performed += OnRotate;
 			InputManager.ShipStandard.Rotate.canceled += StopRotate;
-			InputManager.ShipStandard.Fire.started += Shoot;
 		}
 		else
 		{
 			InputManager.ShipStandard.Forward.performed -= OnMoveForward;
 			InputManager.ShipStandard.Rotate.performed -= OnRotate;
 			InputManager.ShipStandard.Rotate.canceled -= StopRotate;
-			InputManager.ShipStandard.Fire.started -= Shoot;
 		}
 	}
 
@@ -160,12 +175,6 @@ public class Player : MonoBehaviour
 		_turnDirection = 0;
 	}
 
-	private void Shoot(InputAction.CallbackContext ctx)
-	{
-		Bullet bullet = Instantiate(_bulletPrefab, transform.position, transform.rotation);
-		bullet.Project(transform.up);
-	}
-
 	private void TurnOnCollisions()
 	{
 		gameObject.layer = LayerMask.NameToLayer(PlayerLayer);
@@ -179,7 +188,25 @@ public class Player : MonoBehaviour
 			_rigidbody.angularVelocity = 0f;
 			gameObject.SetActive(false);
 
-			_gameManager.PlayerDeath(this);
+			_gameManager.PlayerDeath();
+		}
+	}
+
+	private void OnTriggerEnter2D(Collider2D trigger)
+	{
+		if(trigger.TryGetComponent(out UpgradeView upgradeView))
+		{
+			switch(upgradeView.Upgrade.UpgradeType)
+			{
+				case UpgradeTypes.Ship:
+					break;
+				
+				case UpgradeTypes.Weapon:
+					_weaponSystem.Upgrade(upgradeView.Upgrade.WeaponUpgradeType);
+					break;
+			}
+			
+			Destroy(trigger.gameObject);
 		}
 	}
 
