@@ -1,7 +1,4 @@
-﻿using System;
-using System.Security.Cryptography;
-using UnityEngine;
-using UnityEngine.InputSystem;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Player : MonoBehaviour
@@ -12,8 +9,6 @@ public class Player : MonoBehaviour
 
 	private const string PlayerLayer = "Player";
 
-	private const float InputThreshold = 0.15f;
-
 	#endregion
 
 	#region Editor Variables
@@ -21,6 +16,9 @@ public class Player : MonoBehaviour
 	[Header("GameObjects")]
 	[SerializeField]
 	private Rigidbody2D _rigidbody;
+
+	[SerializeField]
+	private Transform _targetingIcon;
 
 	[SerializeField]
 	private WeaponSystem _weaponSystem;
@@ -31,16 +29,6 @@ public class Player : MonoBehaviour
 	[SerializeField]
 	private Camera _mainCamera;
 	
-	[SerializeField]
-	private Bullet _bulletPrefab;
-
-	[Header("Movement")]
-	[SerializeField]
-	private float _thrustSpeed = 1f;
-
-	[SerializeField]
-	private float _rotationSpeed = 0.1f;
-
 	[Header("Respawn")]
 	[SerializeField]
 	private float _respawnDelay = 3f;
@@ -52,9 +40,8 @@ public class Player : MonoBehaviour
 
 	#region Variables
 
-	private bool _thrusting;
-	private float _turnDirection = 0f;
-	private float _rotateInput;
+	private Engine _engine;
+	private WarpDrive _warpDrive;
 
 	#endregion
 
@@ -79,28 +66,14 @@ public class Player : MonoBehaviour
 
 	private void OnEnable()
 	{
-		// Turn off collisions for a few seconds after spawning to ensure the
-		// player has enough time to safely move away from asteroids
 		gameObject.layer = LayerMask.NameToLayer(IgnoreCollisionsLayer);
 		Invoke(nameof(TurnOnCollisions), _respawnInvulnerability);
-
-		HandleSubscriptions(true);
 	}
 
-	private void OnDisable()
-	{
-		HandleSubscriptions(false);
-	}
 
 	private void FixedUpdate()
 	{
-		if (_thrusting) {
-			_rigidbody.AddForce(transform.up * _thrustSpeed);
-		}
-
-		if (_turnDirection != 0f) {
-			_rigidbody.AddTorque(_rotationSpeed * _turnDirection);
-		}
+		_engine.FixedUpdate();
 
 		// Wrap to the other side of the screen if the player goes off screen
 		if (_rigidbody.position.x > _screenBounds.max.x + 0.5f)
@@ -128,52 +101,23 @@ public class Player : MonoBehaviour
 	public void Spawn()
 	{
 		transform.position = Vector3.zero;
-		InputManager.SwitchToStandarShipInputMap();
+
+		_engine = new StandardEngine(transform, _rigidbody);
+
 		_weaponSystem.Initialize();
+
+		if(_warpDrive != null)
+		{
+			_warpDrive.Deinitialize();
+			_warpDrive = null;
+		}
+
 		gameObject.SetActive(true);
 	}
 
 	#endregion
 
 	#region Private Methods
-
-	private void HandleSubscriptions(bool subscribe)
-	{
-		if(subscribe)
-		{
-			InputManager.ShipStandard.Forward.performed += OnMoveForward;
-			InputManager.ShipStandard.Rotate.performed += OnRotate;
-			InputManager.ShipStandard.Rotate.canceled += StopRotate;
-		}
-		else
-		{
-			InputManager.ShipStandard.Forward.performed -= OnMoveForward;
-			InputManager.ShipStandard.Rotate.performed -= OnRotate;
-			InputManager.ShipStandard.Rotate.canceled -= StopRotate;
-		}
-	}
-
-	private void OnMoveForward(InputAction.CallbackContext ctx)
-	{
-		_thrusting = ctx.ReadValue<float>() > InputThreshold;
-	}
-
-	private void OnRotate(InputAction.CallbackContext ctx)
-	{
-		_rotateInput = ctx.ReadValue<float>();
-
-		if(Mathf.Abs(_rotateInput) < InputThreshold)
-		{
-			_turnDirection = 0;
-		}
-
-		_turnDirection = _rotateInput;
-	}
-
-	private void StopRotate(InputAction.CallbackContext ctx)
-	{
-		_turnDirection = 0;
-	}
 
 	private void TurnOnCollisions()
 	{
@@ -182,7 +126,7 @@ public class Player : MonoBehaviour
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		if (collision.gameObject.CompareTag("Asteroid"))
+		if(collision.gameObject.TryGetComponent(out Asteroid asteroid))
 		{
 			_rigidbody.velocity = Vector3.zero;
 			_rigidbody.angularVelocity = 0f;
@@ -196,18 +140,63 @@ public class Player : MonoBehaviour
 	{
 		if(trigger.TryGetComponent(out UpgradeView upgradeView))
 		{
-			switch(upgradeView.Upgrade.UpgradeType)
-			{
-				case UpgradeTypes.Ship:
-					break;
-				
-				case UpgradeTypes.Weapon:
-					_weaponSystem.Upgrade(upgradeView.Upgrade.WeaponUpgradeType);
-					break;
-			}
+			HandleUpgrade(upgradeView.Upgrade);
 			
 			Destroy(trigger.gameObject);
 		}
+	}
+
+	private void HandleUpgrade(Upgrade upgrade)
+	{
+		switch(upgrade.UpgradeType)
+		{
+			case UpgradeTypes.Ship:
+				if(upgrade.ShipUpgradeType == ShipUpgradeTypes.Decouple)
+				{
+					UpgradeEngine();
+				}
+				else
+				{
+					ActivateWarpDrive();
+				}
+				break;
+				
+			case UpgradeTypes.Weapon:
+				_weaponSystem.Upgrade(upgrade.WeaponUpgradeType);
+				break;
+		}
+	}
+	private void UpgradeEngine()
+	{
+		if(_engine is StandardEngine)
+		{
+			_engine.Deinitialize();
+			_engine = new DecoupledEngine(_rigidbody);
+		}
+	}
+
+	private void ActivateWarpDrive()
+	{
+		if(_warpDrive == null)
+		{
+			_warpDrive = new WarpDrive(transform, _targetingIcon);
+		}
+	}
+
+	#endregion
+
+	#region Cheater
+
+	[ContextMenu("Switch to Decoupled Mode")]
+	private void CheaterSwitchToDecoupledMode()
+	{
+		UpgradeEngine();
+	}
+
+	[ContextMenu("Activate WarpDrive")]
+	private void CheaterActivateWarpDrive()
+	{
+		ActivateWarpDrive();
 	}
 
 	#endregion
