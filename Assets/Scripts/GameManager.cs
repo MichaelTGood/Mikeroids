@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -42,6 +42,7 @@ public class GameManager : MonoBehaviour
 	{
 		InputManager.Menu.Enter.started += NewGame;
 	}
+
 	private void OnDisable()
 	{
 		InputManager.Menu.Enter.started -= NewGame;
@@ -97,18 +98,25 @@ public class GameManager : MonoBehaviour
 	{
 		InputManager.Menu.Disable();
 
-		Asteroid[] asteroids = FindObjectsOfType<Asteroid>();
-
-		for(int i = 0; i < asteroids.Length; i++)
-		{
-			Destroy(asteroids[i].gameObject);
-		}
+		DestroyAllOfType<Asteroid>();
+		DestroyAllOfType<UpgradeView>();
 
 		_gameOverUI.SetActive(false);
 
 		SetScore(0);
 		SetLives(3);
 		Respawn();
+	}
+
+	private void DestroyAllOfType<T>()
+		where T : MonoBehaviour
+	{
+		T[] objects = FindObjectsOfType<T>();
+
+		for(int i = 0; i < objects.Length; i++)
+		{
+			Destroy(objects[i].gameObject);
+		}
 	}
 
 	private void Respawn()
