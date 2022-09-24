@@ -10,9 +10,13 @@ public class InputManager
 
 		#region Properties
 
-		public static MainInputs.ShipStandardActions ShipStandard => Input.ShipStandard;
+		public static MainInputs.StandardEngineActions StandardEngine => Input.StandardEngine;
+
+		public static MainInputs.DecoupledEngineActions DecoupledEngine => Input.DecoupledEngine;
 
 		public static MainInputs.WeaponsSystemActions WeaponsSystem => Input.WeaponsSystem;
+
+		public static MainInputs.WarpJumpActions WarpJump => Input.WarpJump;
 
 		public static MainInputs.MenuActions Menu => Input.Menu;
 
@@ -30,12 +34,5 @@ public class InputManager
 		{
 			Input.Disable();
 			Menu.Enable();
-		}
-
-		public static void SwitchToStandarShipInputMap()
-		{
-			Input.Disable();
-			ShipStandard.Enable();
-			WeaponsSystem.Enable();
 		}
 	}
