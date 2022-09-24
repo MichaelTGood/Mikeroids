@@ -568,6 +568,66 @@ public class @MainInputs : IInputActionCollection, IDisposable
                     ""isPartOfComposite"": true
                 }
             ]
+        },
+        {
+            ""name"": ""Quitter"",
+            ""id"": ""b8b34062-220a-416a-849d-10bce271671a"",
+            ""actions"": [
+                {
+                    ""name"": ""Quit"",
+                    ""type"": ""Button"",
+                    ""id"": ""176c47b4-e97c-4919-b170-04bd7d6f8e64"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""590a595e-8f9f-4730-97c1-71d8229cb933"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""Quit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""Select + Start"",
+                    ""id"": ""9e34d238-f548-4af2-bc72-db69ea660a25"",
+                    ""path"": ""ButtonWithOneModifier"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Quit"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""modifier"",
+                    ""id"": ""04d1f381-c7e7-43cb-9549-fbedd7c7dace"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Quit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""button"",
+                    ""id"": ""ba483fed-af48-46cd-b555-6b3b6bcba760"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Quit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -618,6 +678,9 @@ public class @MainInputs : IInputActionCollection, IDisposable
         m_WarpJump = asset.FindActionMap("WarpJump", throwIfNotFound: true);
         m_WarpJump_Warp = m_WarpJump.FindAction("Warp", throwIfNotFound: true);
         m_WarpJump_WarpTargeting = m_WarpJump.FindAction("WarpTargeting", throwIfNotFound: true);
+        // Quitter
+        m_Quitter = asset.FindActionMap("Quitter", throwIfNotFound: true);
+        m_Quitter_Quit = m_Quitter.FindAction("Quit", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -852,6 +915,39 @@ public class @MainInputs : IInputActionCollection, IDisposable
         }
     }
     public WarpJumpActions @WarpJump => new WarpJumpActions(this);
+
+    // Quitter
+    private readonly InputActionMap m_Quitter;
+    private IQuitterActions m_QuitterActionsCallbackInterface;
+    private readonly InputAction m_Quitter_Quit;
+    public struct QuitterActions
+    {
+        private @MainInputs m_Wrapper;
+        public QuitterActions(@MainInputs wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Quit => m_Wrapper.m_Quitter_Quit;
+        public InputActionMap Get() { return m_Wrapper.m_Quitter; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(QuitterActions set) { return set.Get(); }
+        public void SetCallbacks(IQuitterActions instance)
+        {
+            if (m_Wrapper.m_QuitterActionsCallbackInterface != null)
+            {
+                @Quit.started -= m_Wrapper.m_QuitterActionsCallbackInterface.OnQuit;
+                @Quit.performed -= m_Wrapper.m_QuitterActionsCallbackInterface.OnQuit;
+                @Quit.canceled -= m_Wrapper.m_QuitterActionsCallbackInterface.OnQuit;
+            }
+            m_Wrapper.m_QuitterActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @Quit.started += instance.OnQuit;
+                @Quit.performed += instance.OnQuit;
+                @Quit.canceled += instance.OnQuit;
+            }
+        }
+    }
+    public QuitterActions @Quitter => new QuitterActions(this);
     private int m_ControllerSchemeIndex = -1;
     public InputControlScheme ControllerScheme
     {
@@ -892,5 +988,9 @@ public class @MainInputs : IInputActionCollection, IDisposable
     {
         void OnWarp(InputAction.CallbackContext context);
         void OnWarpTargeting(InputAction.CallbackContext context);
+    }
+    public interface IQuitterActions
+    {
+        void OnQuit(InputAction.CallbackContext context);
     }
 }

@@ -20,6 +20,8 @@ public class InputManager
 
 		public static MainInputs.MenuActions Menu => Input.Menu;
 
+		public static MainInputs.QuitterActions Quit => Input.Quitter;
+
 		#endregion
 		
 		public static void SwitchToActionMap(InputActionMap actionMap)

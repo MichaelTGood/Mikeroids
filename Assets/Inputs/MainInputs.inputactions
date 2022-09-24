@@ -555,6 +555,66 @@
                     "isPartOfComposite": true
                 }
             ]
+        },
+        {
+            "name": "Quitter",
+            "id": "b8b34062-220a-416a-849d-10bce271671a",
+            "actions": [
+                {
+                    "name": "Quit",
+                    "type": "Button",
+                    "id": "176c47b4-e97c-4919-b170-04bd7d6f8e64",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "590a595e-8f9f-4730-97c1-71d8229cb933",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard and Mouse",
+                    "action": "Quit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "Select + Start",
+                    "id": "9e34d238-f548-4af2-bc72-db69ea660a25",
+                    "path": "ButtonWithOneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Quit",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "04d1f381-c7e7-43cb-9549-fbedd7c7dace",
+                    "path": "<Gamepad>/select",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Quit",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "button",
+                    "id": "ba483fed-af48-46cd-b555-6b3b6bcba760",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Quit",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                }
+            ]
         }
     ],
     "controlSchemes": [

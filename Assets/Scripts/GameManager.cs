@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -32,6 +32,12 @@ public class GameManager : MonoBehaviour
 	#endregion
 
 	#region Lifecycle
+
+	private void Awake()
+	{
+		InputManager.Quit.Quit.Enable();
+		InputManager.Quit.Quit.started += Quit;
+	}
 
 	private void Start()
 	{
@@ -140,6 +146,11 @@ public class GameManager : MonoBehaviour
 	{
 		_lives = lives;
 		_livesText.text = lives.ToString();
+	}
+
+	private void Quit(InputAction.CallbackContext ctx)
+	{
+		Application.Quit();
 	}
 
 	#endregion
