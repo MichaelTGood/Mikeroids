@@ -14,7 +14,7 @@ public enum WeaponUpgradeTypes
 {
 	RapidFire,
 	DualShot,
-	BigBlaster,
+	// BigBlaster,
 }
 
 public enum FireRate

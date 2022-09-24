@@ -34,7 +34,7 @@ public class UpgradeView : MonoBehaviour
 		private readonly Dictionary<WeaponUpgradeTypes, string> _weaponUpgradeLetters = new Dictionary<WeaponUpgradeTypes, string>() {
 			{ WeaponUpgradeTypes.RapidFire, "R" },
 			{ WeaponUpgradeTypes.DualShot, "D" },
-			{ WeaponUpgradeTypes.BigBlaster, "B" },
+			// { WeaponUpgradeTypes.BigBlaster, "B" },
 		};
 
 		private Upgrade _upgrade;
