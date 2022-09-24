@@ -36,5 +36,6 @@ public class InputManager
 		{
 			Input.Disable();
 			Menu.Enable();
+			Quit.Enable();
 		}
 	}

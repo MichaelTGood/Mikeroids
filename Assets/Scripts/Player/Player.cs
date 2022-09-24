@@ -60,8 +60,6 @@ public class Player : MonoBehaviour
 		_screenBounds = new Bounds();
 		_screenBounds.Encapsulate(_mainCamera.ScreenToWorldPoint(Vector3.zero));
 		_screenBounds.Encapsulate(_mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0f)));
-
-		Spawn();
 	}
 
 	private void OnEnable()
