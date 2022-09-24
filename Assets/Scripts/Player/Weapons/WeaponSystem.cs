@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,13 +9,7 @@ public class WeaponSystem : MonoBehaviour
 
 		[Header("Game Objects")]
 		[SerializeField]
-		private SpriteRenderer _spriteRenderer;
-
-		[SerializeField]
-		private Sprite _originalShipSprite;
-
-		[SerializeField]
-		private Sprite _upgradedShipSprite;
+		private GameObject _dualBarrels;
 
 		[SerializeField]
 		private Transform _frontBarrelTip;
@@ -59,11 +52,18 @@ public class WeaponSystem : MonoBehaviour
 			_dualBurstWait = new WaitForSeconds(_burstTiming / 2);
 		}
 
+		private void OnEnable()
+		{
+			HandleSubscriptions(true);
+		}
 		private void OnDisable()
 		{
-			InputManager.WeaponsSystem.Fire.started -= OnFire;
+			HandleSubscriptions(false);
 
-			InputManager.WeaponsSystem.Fire.canceled -= OnStopAutoFire;
+			if(_firingRoutine != null)
+			{
+				StopCoroutine(_firingRoutine);
+			}
 		}
 
 		#region Public Methods
@@ -72,11 +72,10 @@ public class WeaponSystem : MonoBehaviour
 		{
 			_fireRate = 0;
 			_dualShotEnabled = false;
-			_spriteRenderer.sprite = _originalShipSprite;
+			_dualBarrels.SetActive(_dualShotEnabled);
 			_barrelTips.Clear();
 			_barrelTips.Enqueue(_frontBarrelTip);
-			
-			InputManager.WeaponsSystem.Fire.started += OnFire;
+			_firingRoutine = null;
 		}
 
 		public void Upgrade(WeaponUpgradeTypes upgrade)
@@ -86,7 +85,10 @@ public class WeaponSystem : MonoBehaviour
 				case WeaponUpgradeTypes.RapidFire:
 					if(_fireRate != FireRate.FullAuto)
 					{
-						if(_fireRate == FireRate.Burst)	// A bad way to determine if the ship is going full auto.
+						// A bad way to determine if the ship is going full auto.
+						// Handled this way so that we only subscribe once,
+						// and not every time an upgrade is picked up after achieving full auto.
+						if(_fireRate == FireRate.Burst)
                      	{
                      		InputManager.WeaponsSystem.Fire.canceled += OnStopAutoFire;
                      	}
@@ -97,7 +99,7 @@ public class WeaponSystem : MonoBehaviour
 				
 				case WeaponUpgradeTypes.DualShot:
 					_dualShotEnabled = true;
-					_spriteRenderer.sprite = _upgradedShipSprite;
+					_dualBarrels.SetActive(_dualShotEnabled);
 					_barrelTips.Clear();
 					_barrelTips.EnqueueRange(_wingBarrelTips);
 					break;
@@ -163,13 +165,18 @@ public class WeaponSystem : MonoBehaviour
 			bullet.Project(barrelTip.up);
 		}
 
-		private void UpdateInputSubscriptions()
+		protected virtual void HandleSubscriptions(bool subscribe)
 		{
-			InputManager.WeaponsSystem.Fire.started += OnFire;
-
-			if(_fireRate == FireRate.FullAuto)
+			if(subscribe)
 			{
-				InputManager.WeaponsSystem.Fire.canceled += OnStopAutoFire;
+				InputManager.WeaponsSystem.Enable();
+				InputManager.WeaponsSystem.Fire.started += OnFire;
+			}
+			else
+			{
+				InputManager.WeaponsSystem.Disable();
+				InputManager.WeaponsSystem.Fire.started -= OnFire;
+				InputManager.WeaponsSystem.Fire.canceled -= OnStopAutoFire;
 			}
 		}
 
