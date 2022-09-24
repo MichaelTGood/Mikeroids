@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -39,7 +40,11 @@ public class GameManager : MonoBehaviour
 
 	private void OnEnable()
 	{
-		InputManager.Menu.Enter.started += _ => NewGame();
+		InputManager.Menu.Enter.started += NewGame;
+	}
+	private void OnDisable()
+	{
+		InputManager.Menu.Enter.started -= NewGame;
 	}
 
 	#endregion
@@ -86,8 +91,12 @@ public class GameManager : MonoBehaviour
 
 	#region Private Methods
 
+	private void NewGame(InputAction.CallbackContext _) => NewGame();
+
 	private void NewGame()
 	{
+		InputManager.Menu.Disable();
+
 		Asteroid[] asteroids = FindObjectsOfType<Asteroid>();
 
 		for(int i = 0; i < asteroids.Length; i++)
