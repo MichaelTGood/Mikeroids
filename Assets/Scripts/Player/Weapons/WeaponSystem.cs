@@ -9,6 +9,9 @@ public class WeaponSystem : MonoBehaviour
 
 		[Header("Game Objects")]
 		[SerializeField]
+		private AudioSource _audioSource;
+
+		[SerializeField]
 		private GameObject _dualBarrels;
 
 		[SerializeField]
@@ -161,8 +164,11 @@ public class WeaponSystem : MonoBehaviour
 		private void FireShot()
 		{
 			Transform barrelTip = _barrelTips.CycleItem();
+
 			Bullet bullet = Instantiate(_bulletPrefab, barrelTip.position, barrelTip.rotation);
 			bullet.Project(barrelTip.up);
+
+			_audioSource.Play();
 		}
 
 		protected virtual void HandleSubscriptions(bool subscribe)
