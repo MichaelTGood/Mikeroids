@@ -86,7 +86,7 @@ public class Asteroid : MonoBehaviour
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		if(collision.gameObject.CompareTag("Bullet"))
+		if(collision.gameObject.TryGetComponent(out Bullet bullet))
 		{
 			// Check if the asteroid is large enough to split in half
 			// (both parts must be greater than the minimum size)
