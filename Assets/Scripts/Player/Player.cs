@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Player : MonoBehaviour
@@ -40,8 +41,26 @@ public class Player : MonoBehaviour
 
 	#region Variables
 
+	private EngineMode _engineMode;
 	private Engine _engine;
 	private WarpDrive _warpDrive;
+
+	#endregion
+
+	#region Events
+
+	public event WeaponSystem.FireRateUpdatedEventHander FireRateUpdatedEvent;
+	private void FireFireRateUpdatedEvent(FireRate newFireRate)
+	{
+		FireRateUpdatedEvent?.Invoke(newFireRate);
+	}
+
+	public delegate void UpgradeEngineModeEventHandler(EngineMode newEngineMode);
+	public event UpgradeEngineModeEventHandler UpgradeEngineModeEvent;
+	private void FireUpgradeEngineModeEvent()
+	{
+		UpgradeEngineModeEvent?.Invoke(_engineMode);
+	}
 
 	#endregion
 
@@ -60,6 +79,8 @@ public class Player : MonoBehaviour
 		_screenBounds = new Bounds();
 		_screenBounds.Encapsulate(_mainCamera.ScreenToWorldPoint(Vector3.zero));
 		_screenBounds.Encapsulate(_mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0f)));
+
+		_weaponSystem.FireRateUpdatedEvent += FireFireRateUpdatedEvent;
 	}
 
 	private void OnEnable()
@@ -68,6 +89,10 @@ public class Player : MonoBehaviour
 		Invoke(nameof(TurnOnCollisions), _respawnInvulnerability);
 	}
 
+	private void OnDestroy()
+	{
+		_weaponSystem.FireRateUpdatedEvent -= FireFireRateUpdatedEvent;
+	}
 
 	private void FixedUpdate()
 	{
@@ -101,6 +126,8 @@ public class Player : MonoBehaviour
 		transform.position = Vector3.zero;
 
 		_engine = new StandardEngine(transform, _rigidbody);
+		_engineMode = EngineMode.Standard;
+		FireUpgradeEngineModeEvent();
 
 		_weaponSystem.Initialize();
 
@@ -149,11 +176,11 @@ public class Player : MonoBehaviour
 		switch(upgrade.UpgradeType)
 		{
 			case UpgradeTypes.Ship:
-				if(upgrade.ShipUpgradeType == ShipUpgradeTypes.Decouple)
+				if(upgrade.ShipUpgradeType == ShipUpgradeTypes.Decouple && !_engineMode.HasFlag(EngineMode.Decoupled))
 				{
 					UpgradeEngine();
 				}
-				else
+				else if(upgrade.ShipUpgradeType == ShipUpgradeTypes.Warp && !_engineMode.HasFlag(EngineMode.Warp))
 				{
 					ActivateWarpDrive();
 				}
@@ -164,12 +191,15 @@ public class Player : MonoBehaviour
 				break;
 		}
 	}
+
 	private void UpgradeEngine()
 	{
 		if(_engine is StandardEngine)
 		{
 			_engine.Deinitialize();
 			_engine = new DecoupledEngine(_rigidbody);
+			_engineMode |= EngineMode.Decoupled;
+			FireUpgradeEngineModeEvent();
 		}
 	}
 
@@ -178,6 +208,8 @@ public class Player : MonoBehaviour
 		if(_warpDrive == null)
 		{
 			_warpDrive = new WarpDrive(transform, _targetingIcon);
+			_engineMode |= EngineMode.Warp;
+			FireUpgradeEngineModeEvent();
 		}
 	}
 
@@ -197,5 +229,10 @@ public class Player : MonoBehaviour
 		ActivateWarpDrive();
 	}
 
+	[ContextMenu("Log Engine Mode")]
+	private void CheaterLogEngineMode()
+	{
+		Debug.Log(_engineMode);
+	}
 	#endregion
 }

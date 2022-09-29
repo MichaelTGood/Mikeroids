@@ -1,3 +1,5 @@
+using System;
+
 public enum UpgradeTypes
 {
 	Ship = 0,
@@ -22,4 +24,14 @@ public enum FireRate
 	Single,
 	Burst,
 	FullAuto,
+}
+
+[Flags]
+public enum EngineMode
+{
+	Standard = 0,
+	Decoupled = 1 << 0,
+	Warp = 1 << 1,
+	
+	DecoupledWarp = Decoupled | Warp,
 }
