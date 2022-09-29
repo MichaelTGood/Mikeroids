@@ -5,6 +5,9 @@ public class AsteroidSpawner : MonoBehaviour
 	#region Editor Variables
 
 	[SerializeField]
+	private GameManager _gameManager;
+
+	[SerializeField]
 	private Asteroid _asteroidPrefab;
 
 	[SerializeField]
@@ -47,11 +50,8 @@ public class AsteroidSpawner : MonoBehaviour
 			// Create the new asteroid by cloning the prefab and set a random
 			// size within the range
 			Asteroid asteroid = Instantiate(_asteroidPrefab, spawnPoint, rotation);
-			asteroid.SetRandomSize();
-
-			// Set the trajectory to move in the direction of the spawner
 			Vector2 trajectory = rotation * -spawnDirection;
-			asteroid.SetTrajectory(trajectory);
+			asteroid.Initialize(_gameManager, trajectory);
 		}
 	}
 }

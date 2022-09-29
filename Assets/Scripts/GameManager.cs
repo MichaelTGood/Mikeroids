@@ -4,6 +4,12 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+	#region Consts
+
+	private const int MinimumUpgradesForLightning = 2;
+
+	#endregion
+
 	#region Editor Variables
 
 	[SerializeField]
@@ -15,12 +21,6 @@ public class GameManager : MonoBehaviour
 	[SerializeField]
 	private GameObject _gameOverUI;
 
-	[SerializeField]
-	private Text _scoreText;
-
-	[SerializeField]
-	private Text _livesText;
-
 	#endregion
 
 	#region Variables
@@ -28,6 +28,42 @@ public class GameManager : MonoBehaviour
 	private int _score;
 
 	private int _lives;
+
+	#endregion
+
+	#region Properties
+
+	public bool MaySpawnLightning => _player.CurrentUpgradeCount >= MinimumUpgradesForLightning;
+
+	#endregion
+
+	#region Events
+
+	public delegate void ScoreUpdatedEventHander(int newScore);
+	public event ScoreUpdatedEventHander ScoreUpdatedEvent;
+	private void FireScoreUpdatedEvent(int newScore)
+	{
+		ScoreUpdatedEvent?.Invoke(newScore);
+	}
+
+	public delegate void LivesUpdatedEventHander(int newLives);
+	public event LivesUpdatedEventHander LivesUpdatedEvent;
+	private void FireLivesUpdatedEvent(int newLives)
+	{
+		LivesUpdatedEvent?.Invoke(newLives);
+	}
+	
+	public event WeaponSystem.FireRateUpdatedEventHander FireRateUpdatedEvent;
+	private void FireFireRateUpdatedEvent(FireRate newFireRate)
+	{
+		FireRateUpdatedEvent?.Invoke(newFireRate);
+	}
+	
+	public event Player.UpgradeEngineModeEventHandler UpgradeEngineModeEvent;
+	private void FireUpgradeEngineModeEvent(EngineMode newEngineMode)
+	{
+		UpgradeEngineModeEvent?.Invoke(newEngineMode);
+	}
 
 	#endregion
 
@@ -47,11 +83,17 @@ public class GameManager : MonoBehaviour
 	private void OnEnable()
 	{
 		InputManager.Menu.Enter.started += NewGame;
+
+		_player.FireRateUpdatedEvent += FireFireRateUpdatedEvent;
+		_player.UpgradeEngineModeEvent += FireUpgradeEngineModeEvent;
 	}
 
 	private void OnDisable()
 	{
 		InputManager.Menu.Enter.started -= NewGame;
+
+		_player.FireRateUpdatedEvent -= FireFireRateUpdatedEvent;
+		_player.UpgradeEngineModeEvent -= FireUpgradeEngineModeEvent;
 	}
 
 	#endregion
@@ -139,13 +181,13 @@ public class GameManager : MonoBehaviour
 	private void SetScore(int score)
 	{
 		_score = score;
-		_scoreText.text = score.ToString();
+		FireScoreUpdatedEvent(_score);
 	}
 
 	private void SetLives(int lives)
 	{
 		_lives = lives;
-		_livesText.text = lives.ToString();
+		FireLivesUpdatedEvent(lives);
 	}
 
 	private void Quit(InputAction.CallbackContext ctx)
