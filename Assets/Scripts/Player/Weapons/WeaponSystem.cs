@@ -9,6 +9,9 @@ public class WeaponSystem : MonoBehaviour
 
 		[Header("Game Objects")]
 		[SerializeField]
+		private AudioSource _audioSource;
+
+		[SerializeField]
 		private GameObject _dualBarrels;
 
 		[SerializeField]
@@ -50,6 +53,13 @@ public class WeaponSystem : MonoBehaviour
 		private void FireFireRateUpdatedEvent()
 		{
 			FireRateUpdatedEvent?.Invoke(_fireRate);
+		}
+
+		public delegate void DualBarrelsUpdatedEventHander(bool dualShotEnabled);
+		public event DualBarrelsUpdatedEventHander DualBarrelsUpdatedEvent;
+		private void FireDualBarrelsUpdatedEvent()
+		{
+			DualBarrelsUpdatedEvent?.Invoke(_dualShotEnabled);
 		}
 
 		#endregion
@@ -114,10 +124,14 @@ public class WeaponSystem : MonoBehaviour
 					break;
 				
 				case WeaponUpgradeTypes.DualShot:
-					_dualShotEnabled = true;
-					_dualBarrels.SetActive(_dualShotEnabled);
-					_barrelTips.Clear();
-					_barrelTips.EnqueueRange(_wingBarrelTips);
+					if(!_dualShotEnabled)
+					{
+						_dualShotEnabled = true;
+						_dualBarrels.SetActive(_dualShotEnabled);
+						_barrelTips.Clear();
+						_barrelTips.EnqueueRange(_wingBarrelTips);
+						FireDualBarrelsUpdatedEvent();
+					}
 					break;
 			}
 		}
@@ -177,8 +191,11 @@ public class WeaponSystem : MonoBehaviour
 		private void FireShot()
 		{
 			Transform barrelTip = _barrelTips.CycleItem();
+
 			Bullet bullet = Instantiate(_bulletPrefab, barrelTip.position, barrelTip.rotation);
 			bullet.Project(barrelTip.up);
+
+			_audioSource.Play();
 		}
 
 		protected virtual void HandleSubscriptions(bool subscribe)
