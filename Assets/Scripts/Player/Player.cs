@@ -41,26 +41,10 @@ public class Player : MonoBehaviour
 
 	#region Variables
 
+	private int _currentUpgradeCount;
 	private EngineMode _engineMode;
 	private Engine _engine;
 	private WarpDrive _warpDrive;
-
-	#endregion
-
-	#region Events
-
-	public event WeaponSystem.FireRateUpdatedEventHander FireRateUpdatedEvent;
-	private void FireFireRateUpdatedEvent(FireRate newFireRate)
-	{
-		FireRateUpdatedEvent?.Invoke(newFireRate);
-	}
-
-	public delegate void UpgradeEngineModeEventHandler(EngineMode newEngineMode);
-	public event UpgradeEngineModeEventHandler UpgradeEngineModeEvent;
-	private void FireUpgradeEngineModeEvent()
-	{
-		UpgradeEngineModeEvent?.Invoke(_engineMode);
-	}
 
 	#endregion
 
@@ -69,6 +53,26 @@ public class Player : MonoBehaviour
 	public float RespawnDelay => _respawnDelay;
 
 	private Bounds _screenBounds;
+	public int CurrentUpgradeCount => _currentUpgradeCount;
+
+	#endregion
+
+	#region Events
+
+	public event WeaponSystem.FireRateUpdatedEventHander FireRateUpdatedEvent;
+	private void FireFireRateUpdatedEvent(FireRate newFireRate)
+	{
+		_currentUpgradeCount++;
+		FireRateUpdatedEvent?.Invoke(newFireRate);
+	}
+
+	public delegate void UpgradeEngineModeEventHandler(EngineMode newEngineMode);
+	public event UpgradeEngineModeEventHandler UpgradeEngineModeEvent;
+	private void FireUpgradeEngineModeEvent()
+	{
+		_currentUpgradeCount++;
+		UpgradeEngineModeEvent?.Invoke(_engineMode);
+	}
 
 	#endregion
 
@@ -137,6 +141,7 @@ public class Player : MonoBehaviour
 			_warpDrive = null;
 		}
 
+		_currentUpgradeCount = 0;
 		gameObject.SetActive(true);
 	}
 
@@ -153,11 +158,7 @@ public class Player : MonoBehaviour
 	{
 		if(collision.gameObject.TryGetComponent(out Asteroid asteroid))
 		{
-			_rigidbody.velocity = Vector3.zero;
-			_rigidbody.angularVelocity = 0f;
-			gameObject.SetActive(false);
-
-			_gameManager.PlayerDeath();
+			PlayerDeath();
 		}
 	}
 
@@ -168,6 +169,10 @@ public class Player : MonoBehaviour
 			HandleUpgrade(upgradeView.Upgrade);
 			
 			Destroy(trigger.gameObject);
+		}
+		else if(trigger.TryGetComponent(out Lightning lightning))
+		{
+			PlayerDeath();
 		}
 	}
 
@@ -213,6 +218,15 @@ public class Player : MonoBehaviour
 		}
 	}
 
+	private void PlayerDeath()
+	{
+		_rigidbody.velocity = Vector3.zero;
+		_rigidbody.angularVelocity = 0f;
+		gameObject.SetActive(false);
+
+		_gameManager.PlayerDeath();
+	}
+
 	#endregion
 
 	#region Cheater
@@ -221,12 +235,14 @@ public class Player : MonoBehaviour
 	private void CheaterSwitchToDecoupledMode()
 	{
 		UpgradeEngine();
+		FireUpgradeEngineModeEvent();
 	}
 
 	[ContextMenu("Activate WarpDrive")]
 	private void CheaterActivateWarpDrive()
 	{
 		ActivateWarpDrive();
+		FireUpgradeEngineModeEvent();
 	}
 
 	[ContextMenu("Log Engine Mode")]
