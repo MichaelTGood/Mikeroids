@@ -43,6 +43,17 @@ public class WeaponSystem : MonoBehaviour
 		
 		#endregion
 
+		#region Events
+
+		public delegate void FireRateUpdatedEventHander(FireRate newFireRate);
+		public event FireRateUpdatedEventHander FireRateUpdatedEvent;
+		private void FireFireRateUpdatedEvent()
+		{
+			FireRateUpdatedEvent?.Invoke(_fireRate);
+		}
+
+		#endregion
+
 		#region Lifecycle
 
 		private void Awake()
@@ -71,10 +82,14 @@ public class WeaponSystem : MonoBehaviour
 		public void Initialize()
 		{
 			_fireRate = 0;
+			FireFireRateUpdatedEvent();
+
 			_dualShotEnabled = false;
 			_dualBarrels.SetActive(_dualShotEnabled);
+
 			_barrelTips.Clear();
 			_barrelTips.Enqueue(_frontBarrelTip);
+
 			_firingRoutine = null;
 		}
 
@@ -89,11 +104,12 @@ public class WeaponSystem : MonoBehaviour
 						// Handled this way so that we only subscribe once,
 						// and not every time an upgrade is picked up after achieving full auto.
 						if(_fireRate == FireRate.Burst)
-                     	{
-                     		InputManager.WeaponsSystem.Fire.canceled += OnStopAutoFire;
-                     	}
+						{
+							InputManager.WeaponsSystem.Fire.canceled += OnStopAutoFire;
+						}
 
 						_fireRate++;
+						FireFireRateUpdatedEvent();
 					}
 					break;
 				

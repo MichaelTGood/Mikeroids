@@ -31,6 +31,30 @@ public class GameManager : MonoBehaviour
 
 	#endregion
 
+	#region Events
+
+	public delegate void ScoreUpdatedEventHander(int newScore);
+	public event ScoreUpdatedEventHander ScoreUpdatedEvent;
+	private void FireScoreUpdatedEvent(int newScore)
+	{
+		ScoreUpdatedEvent?.Invoke(newScore);
+	}
+
+	public delegate void LivesUpdatedEventHander(int newLives);
+	public event LivesUpdatedEventHander LivesUpdatedEvent;
+	private void FireLivesUpdatedEvent(int newLives)
+	{
+		LivesUpdatedEvent?.Invoke(newLives);
+	}
+	
+	public event WeaponSystem.FireRateUpdatedEventHander FireRateUpdatedEvent;
+	private void FireFireRateUpdatedEvent(FireRate newFireRate)
+	{
+		FireRateUpdatedEvent?.Invoke(newFireRate);
+	}
+
+	#endregion
+
 	#region Lifecycle
 
 	private void Awake()
@@ -47,11 +71,15 @@ public class GameManager : MonoBehaviour
 	private void OnEnable()
 	{
 		InputManager.Menu.Enter.started += NewGame;
+
+		_player.FireRateUpdatedEvent += FireFireRateUpdatedEvent;
 	}
 
 	private void OnDisable()
 	{
 		InputManager.Menu.Enter.started -= NewGame;
+
+		_player.FireRateUpdatedEvent -= FireFireRateUpdatedEvent;
 	}
 
 	#endregion
@@ -139,13 +167,13 @@ public class GameManager : MonoBehaviour
 	private void SetScore(int score)
 	{
 		_score = score;
-		_scoreText.text = score.ToString();
+		FireScoreUpdatedEvent(_score);
 	}
 
 	private void SetLives(int lives)
 	{
 		_lives = lives;
-		_livesText.text = lives.ToString();
+		FireLivesUpdatedEvent(lives);
 	}
 
 	private void Quit(InputAction.CallbackContext ctx)

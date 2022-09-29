@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Player : MonoBehaviour
@@ -45,6 +46,16 @@ public class Player : MonoBehaviour
 
 	#endregion
 
+	#region Events
+
+	public event WeaponSystem.FireRateUpdatedEventHander FireRateUpdatedEvent;
+	private void FireFireRateUpdatedEvent(FireRate newFireRate)
+	{
+		FireRateUpdatedEvent?.Invoke(newFireRate);
+	}
+
+	#endregion
+
 	#region Properties
 
 	public float RespawnDelay => _respawnDelay;
@@ -60,6 +71,8 @@ public class Player : MonoBehaviour
 		_screenBounds = new Bounds();
 		_screenBounds.Encapsulate(_mainCamera.ScreenToWorldPoint(Vector3.zero));
 		_screenBounds.Encapsulate(_mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0f)));
+
+		_weaponSystem.FireRateUpdatedEvent += FireFireRateUpdatedEvent;
 	}
 
 	private void OnEnable()
@@ -68,6 +81,10 @@ public class Player : MonoBehaviour
 		Invoke(nameof(TurnOnCollisions), _respawnInvulnerability);
 	}
 
+	private void OnDestroy()
+	{
+		_weaponSystem.FireRateUpdatedEvent -= FireFireRateUpdatedEvent;
+	}
 
 	private void FixedUpdate()
 	{
@@ -164,6 +181,7 @@ public class Player : MonoBehaviour
 				break;
 		}
 	}
+
 	private void UpgradeEngine()
 	{
 		if(_engine is StandardEngine)
