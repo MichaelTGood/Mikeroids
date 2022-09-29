@@ -85,6 +85,7 @@ public class Player : MonoBehaviour
 		_screenBounds.Encapsulate(_mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0f)));
 
 		_weaponSystem.FireRateUpdatedEvent += FireFireRateUpdatedEvent;
+		_weaponSystem.DualBarrelsUpdatedEvent += HandleDualBarrelsUpgraded;
 	}
 
 	private void OnEnable()
@@ -96,6 +97,7 @@ public class Player : MonoBehaviour
 	private void OnDestroy()
 	{
 		_weaponSystem.FireRateUpdatedEvent -= FireFireRateUpdatedEvent;
+		_weaponSystem.DualBarrelsUpdatedEvent -= HandleDualBarrelsUpgraded;
 	}
 
 	private void FixedUpdate()
@@ -225,6 +227,14 @@ public class Player : MonoBehaviour
 		gameObject.SetActive(false);
 
 		_gameManager.PlayerDeath();
+	}
+
+	private void HandleDualBarrelsUpgraded(bool dualShotEnabled)
+	{
+		if(dualShotEnabled)
+		{
+			_currentUpgradeCount++;
+		}
 	}
 
 	#endregion

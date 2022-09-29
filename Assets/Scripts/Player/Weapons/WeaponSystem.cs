@@ -55,6 +55,13 @@ public class WeaponSystem : MonoBehaviour
 			FireRateUpdatedEvent?.Invoke(_fireRate);
 		}
 
+		public delegate void DualBarrelsUpdatedEventHander(bool dualShotEnabled);
+		public event DualBarrelsUpdatedEventHander DualBarrelsUpdatedEvent;
+		private void FireDualBarrelsUpdatedEvent()
+		{
+			DualBarrelsUpdatedEvent?.Invoke(_dualShotEnabled);
+		}
+
 		#endregion
 
 		#region Lifecycle
@@ -117,10 +124,14 @@ public class WeaponSystem : MonoBehaviour
 					break;
 				
 				case WeaponUpgradeTypes.DualShot:
-					_dualShotEnabled = true;
-					_dualBarrels.SetActive(_dualShotEnabled);
-					_barrelTips.Clear();
-					_barrelTips.EnqueueRange(_wingBarrelTips);
+					if(!_dualShotEnabled)
+					{
+						_dualShotEnabled = true;
+						_dualBarrels.SetActive(_dualShotEnabled);
+						_barrelTips.Clear();
+						_barrelTips.EnqueueRange(_wingBarrelTips);
+						FireDualBarrelsUpdatedEvent();
+					}
 					break;
 			}
 		}
