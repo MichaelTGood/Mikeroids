@@ -14,6 +14,9 @@ using UnityEngine;
 		[SerializeField]
 		private FireRateView _fireRateView;
 
+		[SerializeField]
+		private EngineModeView _engineModeView;
+
 		#endregion
 
 		private void Awake()
@@ -22,6 +25,7 @@ using UnityEngine;
 			_gameManager.LivesUpdatedEvent += _gameStatsView.SetLives;
 
 			_gameManager.FireRateUpdatedEvent += _fireRateView.UpdateFireRate;
+			_gameManager.UpgradeEngineModeEvent += _engineModeView.UpdateEngineMode;
 		}
 
 		private void OnDestroy()
@@ -30,5 +34,6 @@ using UnityEngine;
 			_gameManager.LivesUpdatedEvent -= _gameStatsView.SetLives;
 
 			_gameManager.FireRateUpdatedEvent -= _fireRateView.UpdateFireRate;
+			_gameManager.UpgradeEngineModeEvent -= _engineModeView.UpdateEngineMode;
 		}
 	}

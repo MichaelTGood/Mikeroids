@@ -1,6 +1,4 @@
 using DG.Tweening;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -37,7 +35,7 @@ public class FireRateView : MonoBehaviour
 
 	#region Variables
 
-	private Dictionary<FireRate, FireRateData> _fireRateData;
+	private Dictionary<FireRate, ViewData> _fireRateData;
 	private FireRate _currentFireRate;
 	private Sequence _rotationSequence;
 
@@ -45,14 +43,14 @@ public class FireRateView : MonoBehaviour
 
 	private void Awake()
 	{
-		_fireRateData = new Dictionary<FireRate, FireRateData>()
+		_fireRateData = new Dictionary<FireRate, ViewData>()
 		{
-			{ FireRate.Single, new FireRateData(_singleText, SingleRotation)},
-			{ FireRate.Burst, new FireRateData(_burstText, BurstRotation)},
-			{ FireRate.FullAuto, new FireRateData(_fullAutoText, FullAutoRotation)},
+			{ FireRate.Single, new ViewData(_singleText, SingleRotation)},
+			{ FireRate.Burst, new ViewData(_burstText, BurstRotation)},
+			{ FireRate.FullAuto, new ViewData(_fullAutoText, FullAutoRotation)},
 		};
 
-		foreach(KeyValuePair<FireRate, FireRateData> kvp in _fireRateData)
+		foreach(KeyValuePair<FireRate, ViewData> kvp in _fireRateData)
 		{
 			kvp.Value.TextObject.gameObject.SetActive(false);
 		}
@@ -65,22 +63,22 @@ public class FireRateView : MonoBehaviour
 		FireRate previousFireRate = _currentFireRate;
 		_currentFireRate = newFireRate;
 
-		FireRateData currentFireRateData = _fireRateData[_currentFireRate];
-		FireRateData previousFireRateData = _fireRateData[previousFireRate];
+		ViewData currentViewData = _fireRateData[_currentFireRate];
+		ViewData previousViewData = _fireRateData[previousFireRate];
 		
-		currentFireRateData.TextObject.gameObject.SetActive(true);
+		currentViewData.TextObject.gameObject.SetActive(true);
 
 		if(previousFireRate != _currentFireRate)
 		{
 			_rotationSequence = DOTween.Sequence().SetId(TweenId);
 			_rotationSequence.Append(_fireRateCylinder.DORotate(
-				new Vector3(currentFireRateData.RotationPositionX, 0, CylinderRotationZ),
+				new Vector3(currentViewData.RotationPositionX, 0, CylinderRotationZ),
 				TweenRotationTime,
 				RotateMode.FastBeyond360
 				));
 
-			_rotationSequence.Insert(0, currentFireRateData.TextObject.DOFade(1, TweenRotationTime / 2));
-			_rotationSequence.Insert(TweenRotationTime / 2, previousFireRateData.TextObject.DOFade(0, TweenRotationTime / 2));
+			_rotationSequence.Insert(0, currentViewData.TextObject.DOFade(1, TweenRotationTime / 2));
+			_rotationSequence.Insert(TweenRotationTime / 2, previousViewData.TextObject.DOFade(0, TweenRotationTime / 2));
 			_rotationSequence.AppendCallback(UpdateCurrentTextObject);
 		}
 
@@ -93,7 +91,7 @@ public class FireRateView : MonoBehaviour
 
 	#region Nested Classes
 
-	private class FireRateData
+	private class ViewData
 	{
 		#region Variables
 
@@ -111,7 +109,7 @@ public class FireRateView : MonoBehaviour
 
 		#endregion
 
-		public FireRateData(TextMeshPro textObject, int rotationPositionX)
+		public ViewData(TextMeshPro textObject, int rotationPositionX)
 		{
 			_textObject = textObject;
 			_rotationPositionX = rotationPositionX;

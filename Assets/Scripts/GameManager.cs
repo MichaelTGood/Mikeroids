@@ -52,6 +52,12 @@ public class GameManager : MonoBehaviour
 	{
 		FireRateUpdatedEvent?.Invoke(newFireRate);
 	}
+	
+	public event Player.UpgradeEngineModeEventHandler UpgradeEngineModeEvent;
+	private void FireUpgradeEngineModeEvent(EngineMode newEngineMode)
+	{
+		UpgradeEngineModeEvent?.Invoke(newEngineMode);
+	}
 
 	#endregion
 
@@ -73,6 +79,7 @@ public class GameManager : MonoBehaviour
 		InputManager.Menu.Enter.started += NewGame;
 
 		_player.FireRateUpdatedEvent += FireFireRateUpdatedEvent;
+		_player.UpgradeEngineModeEvent += FireUpgradeEngineModeEvent;
 	}
 
 	private void OnDisable()
@@ -80,6 +87,7 @@ public class GameManager : MonoBehaviour
 		InputManager.Menu.Enter.started -= NewGame;
 
 		_player.FireRateUpdatedEvent -= FireFireRateUpdatedEvent;
+		_player.UpgradeEngineModeEvent -= FireUpgradeEngineModeEvent;
 	}
 
 	#endregion
