@@ -17,6 +17,9 @@ public class Asteroid : MonoBehaviour
 	private UpgradeView _upgradePrefab;
 
 	[SerializeField]
+	private Lightning _lightningPrefab;
+
+	[SerializeField]
 	private Sprite[] _sprites;
 
 	[Header("Asteroid Settings")]
@@ -41,6 +44,12 @@ public class Asteroid : MonoBehaviour
 
 	#endregion
 
+	#region Variables
+
+	private GameManager _gameManager;
+
+	#endregion
+
 	#region Properties
 
 	public float Size => _size;
@@ -48,6 +57,21 @@ public class Asteroid : MonoBehaviour
 	#endregion
 
 	#region Lifecycle
+
+	public void Initialize(GameManager gameManager, Vector2 trajectory, float parentSize = -1)
+	{
+		_gameManager = gameManager;
+		SetTrajectory(trajectory);
+
+		if(parentSize == -1)
+		{
+			SetRandomSize();
+		}
+		else
+		{
+			_size = parentSize * 0.5f;
+		}
+	}
 
 	private void Start()
 	{
@@ -66,33 +90,27 @@ public class Asteroid : MonoBehaviour
 
 	#endregion
 
-	#region Public Methods
+	#region Private Methods
 
-	public void SetRandomSize()
+	private void SetRandomSize()
 	{
 		_size = Random.Range(_minSize, _maxSize);
 	}
 
-	public void SetTrajectory(Vector2 direction)
+	private void SetTrajectory(Vector2 direction)
 	{
 		// The asteroid only needs a force to be added once since they have no
 		// drag to make them stop moving
 		_rigidbody.AddForce(direction * _movementSpeed);
 	}
 
-	#endregion
-
-	#region Private Methods
-
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
 		if(collision.gameObject.TryGetComponent(out Bullet bullet))
 		{
-			// Check if the asteroid is large enough to split in half
-			// (both parts must be greater than the minimum size)
 			if ((_size * 0.5f) >= _minSize)
 			{
-				CreateSplit();
+				Transform asteroid0 = CreateSplit().transform;
 
 				if(Random.value <= _upgradeChance)
 				{
@@ -100,31 +118,29 @@ public class Asteroid : MonoBehaviour
 				}
 				else
 				{
-					CreateSplit();
+					Transform asteroid1 = CreateSplit().transform;
+
+					if(_gameManager.MaySpawnLightning)
+					{
+						Lightning lightning = Instantiate(_lightningPrefab);
+						lightning.Initialize(asteroid0, asteroid1);
+					}
 				}
 			}
 
-			FindObjectOfType<GameManager>().AsteroidDestroyed(this);
+			_gameManager.AsteroidDestroyed(this);
 
-			// Destroy the current asteroid since it is either replaced by two
-			// new asteroids or small enough to be destroyed by the bullet
 			Destroy(gameObject);
 		}
 	}
 
 	private Asteroid CreateSplit()
 	{
-		// Set the new asteroid poistion to be the same as the current asteroid
-		// but with a slight offset so they do not spawn inside each other
 		Vector2 position = transform.position;
 		position += Random.insideUnitCircle * 0.5f;
 
-		// Create the new asteroid at half the size of the current
 		Asteroid half = Instantiate(this, position, transform.rotation);
-		half._size = _size * 0.5f;
-
-		// Set a random trajectory
-		half.SetTrajectory(Random.insideUnitCircle.normalized);
+		half.Initialize(_gameManager, Random.insideUnitCircle.normalized, _size);
 
 		return half;
 	}

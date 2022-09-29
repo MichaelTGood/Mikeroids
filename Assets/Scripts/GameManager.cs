@@ -4,6 +4,12 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+	#region Consts
+
+	private const int MinimumUpgradesForLightning = 2;
+
+	#endregion
+
 	#region Editor Variables
 
 	[SerializeField]
@@ -15,12 +21,6 @@ public class GameManager : MonoBehaviour
 	[SerializeField]
 	private GameObject _gameOverUI;
 
-	[SerializeField]
-	private Text _scoreText;
-
-	[SerializeField]
-	private Text _livesText;
-
 	#endregion
 
 	#region Variables
@@ -28,6 +28,12 @@ public class GameManager : MonoBehaviour
 	private int _score;
 
 	private int _lives;
+
+	#endregion
+
+	#region Properties
+
+	public bool MaySpawnLightning => _player.CurrentUpgradeCount >= MinimumUpgradesForLightning;
 
 	#endregion
 
