@@ -2,7 +2,6 @@
 
 public static class Extensions
 {
-
 	#region Queue
 
 	public static T CycleItem<T>(this Queue<T> queue)
