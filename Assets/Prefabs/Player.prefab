@@ -110,6 +110,7 @@ MonoBehaviour:
   _weaponSystem: {fileID: 5221450962656452676}
   _gameManager: {fileID: 0}
   _mainCamera: {fileID: 0}
+  _defaultColor: {r: 0.7647059, g: 0.7647059, b: 0.7647059, a: 1}
   _respawnDelay: 3
   _respawnInvulnerability: 3
   _respawnFlickerTime: 0.2

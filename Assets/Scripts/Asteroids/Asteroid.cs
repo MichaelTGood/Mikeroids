@@ -108,30 +108,35 @@ public class Asteroid : MonoBehaviour
 	{
 		if(collision.gameObject.TryGetComponent(out Bullet bullet))
 		{
-			if ((_size * 0.5f) >= _minSize)
+			DestroyAsteroid();
+		}
+	}
+
+	private void DestroyAsteroid()
+	{
+		if((_size * 0.5f) >= _minSize)
+		{
+			Transform asteroid0 = CreateSplit().transform;
+
+			if(Random.value <= _upgradeChance)
 			{
-				Transform asteroid0 = CreateSplit().transform;
+				CreateUpgrade();
+			}
+			else
+			{
+				Transform asteroid1 = CreateSplit().transform;
 
-				if(Random.value <= _upgradeChance)
+				if(_gameManager.PlayerNextLevel)
 				{
-					CreateUpgrade();
-				}
-				else
-				{
-					Transform asteroid1 = CreateSplit().transform;
-
-					if(_gameManager.MaySpawnLightning)
-					{
-						Lightning lightning = Instantiate(_lightningPrefab);
-						lightning.Initialize(asteroid0, asteroid1);
-					}
+					Lightning lightning = Instantiate(_lightningPrefab);
+					lightning.Initialize(asteroid0, asteroid1);
 				}
 			}
-
-			_gameManager.AsteroidDestroyed(this);
-
-			Destroy(gameObject);
 		}
+
+		_gameManager.AsteroidDestroyed(this);
+
+		Destroy(gameObject);
 	}
 
 	private Asteroid CreateSplit()

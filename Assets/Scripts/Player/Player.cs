@@ -9,7 +9,10 @@ public class Player : MonoBehaviour
 	private const string IgnoreCollisionsLayer = "Ignore Collisions";
 	private const string PlayerLayer = "Player";
 
-	private const string TweenId = "PlayerSpawn";
+	private const string SpawnTweenId = "PlayerSpawn";
+	private const string NextLevelTweenId = "PlayerNextLevel";
+
+	private const int UpgradeLimitToNextLevel = 2;
 
 	#endregion
 
@@ -33,8 +36,11 @@ public class Player : MonoBehaviour
 
 	[SerializeField]
 	private Camera _mainCamera;
-	
+
 	[Header("Respawn")]
+	[SerializeField]
+	private Color _defaultColor;
+
 	[SerializeField]
 	private float _respawnDelay = 3f;
 
@@ -59,10 +65,12 @@ public class Player : MonoBehaviour
 
 	private Bounds _screenBounds;
 	private int _currentUpgradeCount;
+	private bool _playerNextLevel;
 	private EngineMode _engineMode;
 	private Engine _engine;
 	private WarpDrive _warpDrive;
-	private Sequence _sequence;
+	private Sequence _spawnSequence;
+	private Sequence _nextLevelSequence;
 
 	#endregion
 
@@ -70,16 +78,43 @@ public class Player : MonoBehaviour
 
 	public float RespawnDelay => _respawnDelay;
 
-	public int CurrentUpgradeCount => _currentUpgradeCount;
+	private int CurrentUpgradeCount
+	{
+		get => _currentUpgradeCount;
+		set
+		{
+			_currentUpgradeCount = value;
+
+			if(!_playerNextLevel && _currentUpgradeCount > UpgradeLimitToNextLevel)
+			{
+				_playerNextLevel = true;
+				AnimatePlayerNextLevel();
+				FirePlayerNextLevelEvent();
+			}
+			else if(_playerNextLevel && value == 0)
+			{
+				_playerNextLevel = false;
+				DOTween.Kill(NextLevelTweenId);
+				FirePlayerNextLevelEvent();
+			}
+		}
+	}
 
 	#endregion
 
 	#region Events
 
+	public delegate void PlayerNextLevelEventHandler(bool isPlayerNextLevel);
+	public event PlayerNextLevelEventHandler PlayerNextLevelEvent;
+	private void FirePlayerNextLevelEvent()
+	{
+		PlayerNextLevelEvent?.Invoke(_playerNextLevel);
+	}
+
 	public event WeaponSystem.FireRateUpdatedEventHander FireRateUpdatedEvent;
 	private void FireFireRateUpdatedEvent(FireRate newFireRate)
 	{
-		_currentUpgradeCount++;
+		CurrentUpgradeCount++;
 		FireRateUpdatedEvent?.Invoke(newFireRate);
 	}
 
@@ -87,7 +122,7 @@ public class Player : MonoBehaviour
 	public event UpgradeEngineModeEventHandler UpgradeEngineModeEvent;
 	private void FireUpgradeEngineModeEvent()
 	{
-		_currentUpgradeCount++;
+		CurrentUpgradeCount++;
 		UpgradeEngineModeEvent?.Invoke(_engineMode);
 	}
 
@@ -145,7 +180,7 @@ public class Player : MonoBehaviour
 
 		ResetEngineMode();
 		_weaponSystem.Initialize();
-		_currentUpgradeCount = 0;
+		CurrentUpgradeCount = 0;
 
 		gameObject.SetActive(true);
 		SpawnAnimation();
@@ -157,16 +192,15 @@ public class Player : MonoBehaviour
 
 	private void SpawnAnimation()
 	{
-		Color originalColor = _spriteRenderer.color;
-		DOTween.Kill(TweenId);
-		_sequence = DOTween.Sequence().SetId(TweenId);
-		_sequence.Append(_spriteRenderer.DOGradientColor(_respawnGradient, _respawnFlickerTime).SetLoops(int.MaxValue, LoopType.Yoyo));
-		_sequence.InsertCallback(_respawnInvulnerability, TurnOnCollision);
+		DOTween.Kill(SpawnTweenId);
+		_spawnSequence = DOTween.Sequence().SetId(SpawnTweenId);
+		_spawnSequence.Append(_spriteRenderer.DOGradientColor(_respawnGradient, _respawnFlickerTime).SetLoops(int.MaxValue, LoopType.Yoyo));
+		_spawnSequence.InsertCallback(_respawnInvulnerability, TurnOnCollision);
 
 		void TurnOnCollision()
 		{
-			DOTween.Kill(TweenId);
-			_spriteRenderer.DOColor(originalColor, _respawnFlickerTime).SetId(TweenId);
+			DOTween.Kill(SpawnTweenId);
+			_spriteRenderer.DOColor(_defaultColor, _respawnFlickerTime).SetId(SpawnTweenId);
 			gameObject.layer = LayerMask.NameToLayer(PlayerLayer);
 		}
 	}
@@ -214,6 +248,14 @@ public class Player : MonoBehaviour
 		}
 	}
 
+	private void AnimatePlayerNextLevel()
+	{
+		DOTween.Kill(NextLevelTweenId);
+
+		_nextLevelSequence = DOTween.Sequence().SetId(NextLevelTweenId).SetLoops(-1, LoopType.Yoyo);
+		_nextLevelSequence.Append(_spriteRenderer.DOGradientColor(_upgradeGradient, _upgradeFlickerTime));
+	}
+
 	private void UpgradeEngine()
 	{
 		if(_engine is StandardEngine)
@@ -255,6 +297,14 @@ public class Player : MonoBehaviour
 		}
 	}
 
+	private void HandleDualBarrelsUpgraded(bool dualShotEnabled)
+	{
+		if(dualShotEnabled)
+		{
+			CurrentUpgradeCount++;
+		}
+	}
+
 	private void PlayerDeath()
 	{
 		_rigidbody.velocity = Vector3.zero;
@@ -262,14 +312,6 @@ public class Player : MonoBehaviour
 		gameObject.SetActive(false);
 
 		_gameManager.PlayerDeath();
-	}
-
-	private void HandleDualBarrelsUpgraded(bool dualShotEnabled)
-	{
-		if(dualShotEnabled)
-		{
-			_currentUpgradeCount++;
-		}
 	}
 
 	#endregion

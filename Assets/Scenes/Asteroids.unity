@@ -9188,12 +9188,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!212 &2113858483 stripped
-SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 8887265472580279768, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-    type: 3}
-  m_PrefabInstance: {fileID: 3770626635231529146}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3770626635231529146
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9211,146 +9205,6 @@ PrefabInstance:
       propertyPath: _gameManager
       value: 
       objectReference: {fileID: 1031442192}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _spriteRenderer
-      value: 
-      objectReference: {fileID: 2113858483}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.ctime1
-      value: 65535
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.ctime2
-      value: 65535
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.ctime3
-      value: 65535
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.ctime4
-      value: 65535
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.key0.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.key0.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.key0.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.key1.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.key1.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.key1.r
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.key2.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.key2.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.key3.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.key3.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.key4.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.m_Mode
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _respawnFlickerCount
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _respawnGradient.key1.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _respawnGradient.key1.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _respawnGradient.key1.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _upgradeGradient.key0.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _upgradeGradient.key0.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _upgradeGradient.key0.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _upgradeGradient.key1.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _upgradeGradient.key1.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _upgradeGradient.key1.r
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3770626635052826504, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: _gradient.m_NumColorKeys
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 3770626635052826507, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
         type: 3}
       propertyPath: m_RootOrder
@@ -9410,26 +9264,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 8887265472580279768, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: m_Color.a
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8887265472580279768, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: m_Color.b
-      value: 0.764151
-      objectReference: {fileID: 0}
-    - target: {fileID: 8887265472580279768, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: m_Color.g
-      value: 0.764151
-      objectReference: {fileID: 0}
-    - target: {fileID: 8887265472580279768, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61,
-        type: 3}
-      propertyPath: m_Color.r
-      value: 0.764151
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bfe7ec02f52cd1a4b8cd1f103d66bc61, type: 3}

@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
 
 	#region Properties
 
-	public bool MaySpawnLightning => _player.CurrentUpgradeCount >= MinimumUpgradesForLightning;
+	public bool PlayerNextLevel { get; private set; }
 
 	#endregion
 
@@ -74,6 +74,12 @@ public class GameManager : MonoBehaviour
 		UpgradeEngineModeEvent?.Invoke(newEngineMode);
 	}
 
+	public event Player.PlayerNextLevelEventHandler PlayerNextLevelEvent;
+	private void FirePlayerNextLevelEvent()
+	{
+		PlayerNextLevelEvent?.Invoke(PlayerNextLevel);
+	}
+
 	#endregion
 
 	#region Lifecycle
@@ -96,6 +102,7 @@ public class GameManager : MonoBehaviour
 
 		_player.FireRateUpdatedEvent += FireFireRateUpdatedEvent;
 		_player.UpgradeEngineModeEvent += FireUpgradeEngineModeEvent;
+		_player.PlayerNextLevelEvent += SetPlayerNextLevel;
 	}
 
 	private void OnDisable()
@@ -104,6 +111,7 @@ public class GameManager : MonoBehaviour
 
 		_player.FireRateUpdatedEvent -= FireFireRateUpdatedEvent;
 		_player.UpgradeEngineModeEvent -= FireUpgradeEngineModeEvent;
+		_player.PlayerNextLevelEvent -= SetPlayerNextLevel;
 	}
 
 	#endregion
@@ -216,6 +224,12 @@ public class GameManager : MonoBehaviour
 	{
 		_lives = lives;
 		FireLivesUpdatedEvent(lives);
+	}
+
+	private void SetPlayerNextLevel(bool isPlayerNextLevel)
+	{
+		PlayerNextLevel = isPlayerNextLevel;
+		FirePlayerNextLevelEvent();
 	}
 
 	private void Quit(InputAction.CallbackContext ctx)

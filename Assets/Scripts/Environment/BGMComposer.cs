@@ -39,16 +39,18 @@ public class BGMComposer : MonoBehaviour
 		_bgm2.Play();
 		CrossFade(_bgm1);
 
+		_gameManager.PlayerNextLevelEvent += UpdateBGMForLevel;
 		_gameManager.PauseEvent += AdjustForPauseScreen;
 	}
 
+
 	private void Update()
 	{
-		if(_gameManager.MaySpawnLightning && _currentAudioSource == _bgm1)
+		if(_gameManager.PlayerNextLevel && _currentAudioSource == _bgm1)
 		{
 			CrossFade(_bgm2, _bgm1);
 		}
-		else if(!_gameManager.MaySpawnLightning && _currentAudioSource == _bgm2)
+		else if(!_gameManager.PlayerNextLevel && _currentAudioSource == _bgm2)
 		{
 			CrossFade(_bgm1, _bgm2, true);
 		}
@@ -57,6 +59,18 @@ public class BGMComposer : MonoBehaviour
 	#endregion
 
 	#region Private Methods
+
+	private void UpdateBGMForLevel(bool isPlayerNextLevel)
+	{
+		if(isPlayerNextLevel)
+		{
+			CrossFade(_bgm2, _bgm1);
+		}
+		else
+		{
+			CrossFade(_bgm1, _bgm2, true);
+		}
+	}
 
 	private void CrossFade(AudioSource toAudio, AudioSource fromAudio = null, bool quickFade = false)
 	{
