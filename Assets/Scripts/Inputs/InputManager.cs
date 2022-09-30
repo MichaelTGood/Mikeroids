@@ -18,9 +18,11 @@ public class InputManager
 
 		public static MainInputs.WarpJumpActions WarpJump => Input.WarpJump;
 
-		public static MainInputs.MenuActions Menu => Input.Menu;
+		public static MainInputs.GameControlsActions GameControls => Input.GameControls;
 
-		public static MainInputs.QuitterActions Quit => Input.Quitter;
+		public static MainInputs.GameOverActions GameOver => Input.GameOver;
+
+		public static MainInputs.PauseScreenActions Pause => Input.PauseScreen;
 
 		#endregion
 		
@@ -30,12 +32,5 @@ public class InputManager
 
 			Input.Disable();
 			actionMap.Enable();
-		}
-		
-		public static void SwitchToMenuInputMap()
-		{
-			Input.Disable();
-			Menu.Enable();
-			Quit.Enable();
 		}
 	}

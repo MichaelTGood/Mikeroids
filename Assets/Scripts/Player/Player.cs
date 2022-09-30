@@ -1,4 +1,4 @@
-﻿using System;
+﻿using DG.Tweening;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -7,8 +7,12 @@ public class Player : MonoBehaviour
 	#region Consts
 
 	private const string IgnoreCollisionsLayer = "Ignore Collisions";
-
 	private const string PlayerLayer = "Player";
+
+	private const string SpawnTweenId = "PlayerSpawn";
+	private const string NextLevelTweenId = "PlayerNextLevel";
+
+	private const int UpgradeLimitToNextLevel = 2;
 
 	#endregion
 
@@ -17,6 +21,9 @@ public class Player : MonoBehaviour
 	[Header("GameObjects")]
 	[SerializeField]
 	private Rigidbody2D _rigidbody;
+
+	[SerializeField]
+	private SpriteRenderer _spriteRenderer;
 
 	[SerializeField]
 	private Transform _targetingIcon;
@@ -29,22 +36,41 @@ public class Player : MonoBehaviour
 
 	[SerializeField]
 	private Camera _mainCamera;
-	
+
 	[Header("Respawn")]
+	[SerializeField]
+	private Color _defaultColor;
+
 	[SerializeField]
 	private float _respawnDelay = 3f;
 
 	[SerializeField]
-	private float _respawnInvulnerability = 3f;    
+	private float _respawnInvulnerability = 3f;
+
+	[SerializeField]
+	private float _respawnFlickerTime = 3;
+
+	[SerializeField]
+	private Gradient _respawnGradient;
+
+	[SerializeField]
+	private float _upgradeFlickerTime = 0.5f;
+
+	[SerializeField]
+	private Gradient _upgradeGradient;
 
 	#endregion
 
 	#region Variables
 
+	private Bounds _screenBounds;
 	private int _currentUpgradeCount;
+	private bool _playerNextLevel;
 	private EngineMode _engineMode;
 	private Engine _engine;
 	private WarpDrive _warpDrive;
+	private Sequence _spawnSequence;
+	private Sequence _nextLevelSequence;
 
 	#endregion
 
@@ -52,17 +78,43 @@ public class Player : MonoBehaviour
 
 	public float RespawnDelay => _respawnDelay;
 
-	private Bounds _screenBounds;
-	public int CurrentUpgradeCount => _currentUpgradeCount;
+	private int CurrentUpgradeCount
+	{
+		get => _currentUpgradeCount;
+		set
+		{
+			_currentUpgradeCount = value;
+
+			if(!_playerNextLevel && _currentUpgradeCount > UpgradeLimitToNextLevel)
+			{
+				_playerNextLevel = true;
+				AnimatePlayerNextLevel();
+				FirePlayerNextLevelEvent();
+			}
+			else if(_playerNextLevel && value == 0)
+			{
+				_playerNextLevel = false;
+				DOTween.Kill(NextLevelTweenId);
+				FirePlayerNextLevelEvent();
+			}
+		}
+	}
 
 	#endregion
 
 	#region Events
 
+	public delegate void PlayerNextLevelEventHandler(bool isPlayerNextLevel);
+	public event PlayerNextLevelEventHandler PlayerNextLevelEvent;
+	private void FirePlayerNextLevelEvent()
+	{
+		PlayerNextLevelEvent?.Invoke(_playerNextLevel);
+	}
+
 	public event WeaponSystem.FireRateUpdatedEventHander FireRateUpdatedEvent;
 	private void FireFireRateUpdatedEvent(FireRate newFireRate)
 	{
-		_currentUpgradeCount++;
+		CurrentUpgradeCount++;
 		FireRateUpdatedEvent?.Invoke(newFireRate);
 	}
 
@@ -70,7 +122,7 @@ public class Player : MonoBehaviour
 	public event UpgradeEngineModeEventHandler UpgradeEngineModeEvent;
 	private void FireUpgradeEngineModeEvent()
 	{
-		_currentUpgradeCount++;
+		CurrentUpgradeCount++;
 		UpgradeEngineModeEvent?.Invoke(_engineMode);
 	}
 
@@ -86,12 +138,6 @@ public class Player : MonoBehaviour
 
 		_weaponSystem.FireRateUpdatedEvent += FireFireRateUpdatedEvent;
 		_weaponSystem.DualBarrelsUpdatedEvent += HandleDualBarrelsUpgraded;
-	}
-
-	private void OnEnable()
-	{
-		gameObject.layer = LayerMask.NameToLayer(IgnoreCollisionsLayer);
-		Invoke(nameof(TurnOnCollisions), _respawnInvulnerability);
 	}
 
 	private void OnDestroy()
@@ -129,31 +175,34 @@ public class Player : MonoBehaviour
 
 	public void Spawn()
 	{
+		gameObject.layer = LayerMask.NameToLayer(IgnoreCollisionsLayer);
 		transform.position = Vector3.zero;
 
-		_engine = new StandardEngine(transform, _rigidbody);
-		_engineMode = EngineMode.Standard;
-		FireUpgradeEngineModeEvent();
-
+		ResetEngineMode();
 		_weaponSystem.Initialize();
+		CurrentUpgradeCount = 0;
 
-		if(_warpDrive != null)
-		{
-			_warpDrive.Deinitialize();
-			_warpDrive = null;
-		}
-
-		_currentUpgradeCount = 0;
 		gameObject.SetActive(true);
+		SpawnAnimation();
 	}
 
 	#endregion
 
 	#region Private Methods
 
-	private void TurnOnCollisions()
+	private void SpawnAnimation()
 	{
-		gameObject.layer = LayerMask.NameToLayer(PlayerLayer);
+		DOTween.Kill(SpawnTweenId);
+		_spawnSequence = DOTween.Sequence().SetId(SpawnTweenId);
+		_spawnSequence.Append(_spriteRenderer.DOGradientColor(_respawnGradient, _respawnFlickerTime).SetLoops(int.MaxValue, LoopType.Yoyo));
+		_spawnSequence.InsertCallback(_respawnInvulnerability, TurnOnCollision);
+
+		void TurnOnCollision()
+		{
+			DOTween.Kill(SpawnTweenId);
+			_spriteRenderer.DOColor(_defaultColor, _respawnFlickerTime).SetId(SpawnTweenId);
+			gameObject.layer = LayerMask.NameToLayer(PlayerLayer);
+		}
 	}
 
 	private void OnCollisionEnter2D(Collision2D collision)
@@ -199,6 +248,14 @@ public class Player : MonoBehaviour
 		}
 	}
 
+	private void AnimatePlayerNextLevel()
+	{
+		DOTween.Kill(NextLevelTweenId);
+
+		_nextLevelSequence = DOTween.Sequence().SetId(NextLevelTweenId).SetLoops(-1, LoopType.Yoyo);
+		_nextLevelSequence.Append(_spriteRenderer.DOGradientColor(_upgradeGradient, _upgradeFlickerTime));
+	}
+
 	private void UpgradeEngine()
 	{
 		if(_engine is StandardEngine)
@@ -208,6 +265,17 @@ public class Player : MonoBehaviour
 			_engineMode |= EngineMode.Decoupled;
 			FireUpgradeEngineModeEvent();
 		}
+	}
+
+	private void ResetEngineMode()
+	{
+		_engine = new StandardEngine(transform, _rigidbody);
+
+		DeactivateWarpDrive();
+
+		_engineMode = EngineMode.Standard;
+
+		FireUpgradeEngineModeEvent();
 	}
 
 	private void ActivateWarpDrive()
@@ -220,6 +288,23 @@ public class Player : MonoBehaviour
 		}
 	}
 
+	private void DeactivateWarpDrive()
+	{
+		if(_warpDrive != null)
+		{
+			_warpDrive.Deinitialize();
+			_warpDrive = null;
+		}
+	}
+
+	private void HandleDualBarrelsUpgraded(bool dualShotEnabled)
+	{
+		if(dualShotEnabled)
+		{
+			CurrentUpgradeCount++;
+		}
+	}
+
 	private void PlayerDeath()
 	{
 		_rigidbody.velocity = Vector3.zero;
@@ -227,14 +312,6 @@ public class Player : MonoBehaviour
 		gameObject.SetActive(false);
 
 		_gameManager.PlayerDeath();
-	}
-
-	private void HandleDualBarrelsUpgraded(bool dualShotEnabled)
-	{
-		if(dualShotEnabled)
-		{
-			_currentUpgradeCount++;
-		}
 	}
 
 	#endregion
