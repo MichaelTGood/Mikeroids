@@ -1,4 +1,4 @@
-﻿using System;
+﻿using DG.Tweening;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -7,8 +7,9 @@ public class Player : MonoBehaviour
 	#region Consts
 
 	private const string IgnoreCollisionsLayer = "Ignore Collisions";
-
 	private const string PlayerLayer = "Player";
+
+	private const string TweenId = "PlayerSpawn";
 
 	#endregion
 
@@ -17,6 +18,9 @@ public class Player : MonoBehaviour
 	[Header("GameObjects")]
 	[SerializeField]
 	private Rigidbody2D _rigidbody;
+
+	[SerializeField]
+	private SpriteRenderer _spriteRenderer;
 
 	[SerializeField]
 	private Transform _targetingIcon;
@@ -35,16 +39,30 @@ public class Player : MonoBehaviour
 	private float _respawnDelay = 3f;
 
 	[SerializeField]
-	private float _respawnInvulnerability = 3f;    
+	private float _respawnInvulnerability = 3f;
+
+	[SerializeField]
+	private float _respawnFlickerTime = 3;
+
+	[SerializeField]
+	private Gradient _respawnGradient;
+
+	[SerializeField]
+	private float _upgradeFlickerTime = 0.5f;
+
+	[SerializeField]
+	private Gradient _upgradeGradient;
 
 	#endregion
 
 	#region Variables
 
+	private Bounds _screenBounds;
 	private int _currentUpgradeCount;
 	private EngineMode _engineMode;
 	private Engine _engine;
 	private WarpDrive _warpDrive;
+	private Sequence _sequence;
 
 	#endregion
 
@@ -52,7 +70,6 @@ public class Player : MonoBehaviour
 
 	public float RespawnDelay => _respawnDelay;
 
-	private Bounds _screenBounds;
 	public int CurrentUpgradeCount => _currentUpgradeCount;
 
 	#endregion
@@ -86,12 +103,6 @@ public class Player : MonoBehaviour
 
 		_weaponSystem.FireRateUpdatedEvent += FireFireRateUpdatedEvent;
 		_weaponSystem.DualBarrelsUpdatedEvent += HandleDualBarrelsUpgraded;
-	}
-
-	private void OnEnable()
-	{
-		gameObject.layer = LayerMask.NameToLayer(IgnoreCollisionsLayer);
-		Invoke(nameof(TurnOnCollisions), _respawnInvulnerability);
 	}
 
 	private void OnDestroy()
@@ -129,31 +140,35 @@ public class Player : MonoBehaviour
 
 	public void Spawn()
 	{
+		gameObject.layer = LayerMask.NameToLayer(IgnoreCollisionsLayer);
 		transform.position = Vector3.zero;
 
-		_engine = new StandardEngine(transform, _rigidbody);
-		_engineMode = EngineMode.Standard;
-		FireUpgradeEngineModeEvent();
-
+		ResetEngineMode();
 		_weaponSystem.Initialize();
-
-		if(_warpDrive != null)
-		{
-			_warpDrive.Deinitialize();
-			_warpDrive = null;
-		}
-
 		_currentUpgradeCount = 0;
+
 		gameObject.SetActive(true);
+		SpawnAnimation();
 	}
 
 	#endregion
 
 	#region Private Methods
 
-	private void TurnOnCollisions()
+	private void SpawnAnimation()
 	{
-		gameObject.layer = LayerMask.NameToLayer(PlayerLayer);
+		Color originalColor = _spriteRenderer.color;
+		DOTween.Kill(TweenId);
+		_sequence = DOTween.Sequence().SetId(TweenId);
+		_sequence.Append(_spriteRenderer.DOGradientColor(_respawnGradient, _respawnFlickerTime).SetLoops(int.MaxValue, LoopType.Yoyo));
+		_sequence.InsertCallback(_respawnInvulnerability, TurnOnCollision);
+
+		void TurnOnCollision()
+		{
+			DOTween.Kill(TweenId);
+			_spriteRenderer.DOColor(originalColor, _respawnFlickerTime).SetId(TweenId);
+			gameObject.layer = LayerMask.NameToLayer(PlayerLayer);
+		}
 	}
 
 	private void OnCollisionEnter2D(Collision2D collision)
@@ -210,6 +225,17 @@ public class Player : MonoBehaviour
 		}
 	}
 
+	private void ResetEngineMode()
+	{
+		_engine = new StandardEngine(transform, _rigidbody);
+
+		DeactivateWarpDrive();
+
+		_engineMode = EngineMode.Standard;
+
+		FireUpgradeEngineModeEvent();
+	}
+
 	private void ActivateWarpDrive()
 	{
 		if(_warpDrive == null)
@@ -217,6 +243,15 @@ public class Player : MonoBehaviour
 			_warpDrive = new WarpDrive(transform, _targetingIcon);
 			_engineMode |= EngineMode.Warp;
 			FireUpgradeEngineModeEvent();
+		}
+	}
+
+	private void DeactivateWarpDrive()
+	{
+		if(_warpDrive != null)
+		{
+			_warpDrive.Deinitialize();
+			_warpDrive = null;
 		}
 	}
 
