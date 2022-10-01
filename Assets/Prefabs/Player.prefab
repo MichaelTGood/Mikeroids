@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 3770626635052826517}
   - component: {fileID: 3770626635052826504}
   - component: {fileID: 5221450962656452676}
+  - component: {fileID: 9169505313658313531}
   - component: {fileID: 8887265472580279768}
   - component: {fileID: 3696206024116074013}
   - component: {fileID: 5490127156101133776}
@@ -105,6 +106,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rigidbody: {fileID: 3770626635052826517}
+  _sfxManager: {fileID: 9169505313658313531}
   _spriteRenderer: {fileID: 8887265472580279768}
   _targetingIcon: {fileID: 2645143853748598924}
   _weaponSystem: {fileID: 5221450962656452676}
@@ -185,7 +187,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27ee755c0e1a7944594cb8e161308bc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _audioSource: {fileID: 5490127156101133776}
+  _sfxManager: {fileID: 9169505313658313531}
   _dualBarrels: {fileID: 6596573357953156710}
   _frontBarrelTip: {fileID: 8763120580245679215}
   _wingBarrelTips:
@@ -195,6 +197,27 @@ MonoBehaviour:
     type: 3}
   _fireCooldown: 0.5
   _burstTiming: 0.25
+--- !u!114 &9169505313658313531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3770626635052826519}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ecb8dcc86eba624d82d410451f23b02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _audioSource: {fileID: 5490127156101133776}
+  _shotFiredClip: {fileID: 8300000, guid: 4310474905e266640852f43bd609a1a4, type: 3}
+  _upgradeFireRateClip: {fileID: 8300000, guid: 524c0fd33776cdb4f81f357714db25f0,
+    type: 3}
+  _upgradeDualShotClip: {fileID: 8300000, guid: 2f2e04fdf7645fc428c0cd0368781fda,
+    type: 3}
+  _upgradeDecoupledClip: {fileID: 8300000, guid: 57b8419c447032b4b851148d20de8c6c,
+    type: 3}
+  _upgradeWarpClip: {fileID: 8300000, guid: 2e4b43395502fa849ad73881bd05f295, type: 3}
 --- !u!212 &8887265472580279768
 SpriteRenderer:
   m_ObjectHideFlags: 0

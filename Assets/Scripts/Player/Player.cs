@@ -23,6 +23,9 @@ public class Player : MonoBehaviour
 	private Rigidbody2D _rigidbody;
 
 	[SerializeField]
+	private SFXManager _sfxManager;
+
+	[SerializeField]
 	private SpriteRenderer _spriteRenderer;
 
 	[SerializeField]
@@ -263,6 +266,7 @@ public class Player : MonoBehaviour
 			_engine.Deinitialize();
 			_engine = new DecoupledEngine(_rigidbody);
 			_engineMode |= EngineMode.Decoupled;
+			_sfxManager.PlaySFX(AudioClips.Decoupled);
 			FireUpgradeEngineModeEvent();
 		}
 	}
@@ -284,6 +288,7 @@ public class Player : MonoBehaviour
 		{
 			_warpDrive = new WarpDrive(transform, _targetingIcon);
 			_engineMode |= EngineMode.Warp;
+			_sfxManager.PlaySFX(AudioClips.Warp);
 			FireUpgradeEngineModeEvent();
 		}
 	}

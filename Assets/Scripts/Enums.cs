@@ -1,5 +1,14 @@
 using System;
 
+public enum AudioClips
+{
+	ShotFired,
+	FireRate,
+	DualShot,
+	Decoupled,
+	Warp,
+}
+
 public enum UpgradeTypes
 {
 	Ship = 0,
