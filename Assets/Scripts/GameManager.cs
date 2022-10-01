@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -21,23 +20,33 @@ public class GameManager : MonoBehaviour
 	[SerializeField]
 	private GameObject _gameOverUI;
 
+	[SerializeField]
+	private PauseScreen _pauseScreen;
+
 	#endregion
 
 	#region Variables
 
 	private int _score;
-
 	private int _lives;
+	private bool _isPaused;
 
 	#endregion
 
 	#region Properties
 
-	public bool MaySpawnLightning => _player.CurrentUpgradeCount >= MinimumUpgradesForLightning;
+	public bool PlayerNextLevel { get; private set; }
 
 	#endregion
 
 	#region Events
+
+	public delegate void PauseEventHanlder(bool isPaused);
+	public event PauseEventHanlder PauseEvent;
+	private void FirePauseEvent()
+	{
+		PauseEvent?.Invoke(_isPaused);
+	}
 
 	public delegate void ScoreUpdatedEventHander(int newScore);
 	public event ScoreUpdatedEventHander ScoreUpdatedEvent;
@@ -65,14 +74,21 @@ public class GameManager : MonoBehaviour
 		UpgradeEngineModeEvent?.Invoke(newEngineMode);
 	}
 
+	public event Player.PlayerNextLevelEventHandler PlayerNextLevelEvent;
+	private void FirePlayerNextLevelEvent()
+	{
+		PlayerNextLevelEvent?.Invoke(PlayerNextLevel);
+	}
+
 	#endregion
 
 	#region Lifecycle
 
 	private void Awake()
 	{
-		InputManager.Quit.Quit.Enable();
-		InputManager.Quit.Quit.started += Quit;
+		Cursor.lockState = CursorLockMode.Locked;
+		InputManager.GameControls.Enable();
+		InputManager.GameControls.Pause.started += Pause;
 	}
 
 	private void Start()
@@ -82,18 +98,20 @@ public class GameManager : MonoBehaviour
 
 	private void OnEnable()
 	{
-		InputManager.Menu.Enter.started += NewGame;
+		InputManager.GameOver.Enter.started += NewGame;
 
 		_player.FireRateUpdatedEvent += FireFireRateUpdatedEvent;
 		_player.UpgradeEngineModeEvent += FireUpgradeEngineModeEvent;
+		_player.PlayerNextLevelEvent += SetPlayerNextLevel;
 	}
 
 	private void OnDisable()
 	{
-		InputManager.Menu.Enter.started -= NewGame;
+		InputManager.GameOver.Enter.started -= NewGame;
 
 		_player.FireRateUpdatedEvent -= FireFireRateUpdatedEvent;
 		_player.UpgradeEngineModeEvent -= FireUpgradeEngineModeEvent;
+		_player.PlayerNextLevelEvent -= SetPlayerNextLevel;
 	}
 
 	#endregion
@@ -144,7 +162,7 @@ public class GameManager : MonoBehaviour
 
 	private void NewGame()
 	{
-		InputManager.Menu.Disable();
+		InputManager.GameOver.Disable();
 
 		DestroyAllOfType<Asteroid>();
 		DestroyAllOfType<UpgradeView>();
@@ -172,10 +190,28 @@ public class GameManager : MonoBehaviour
 		_player.Spawn();
 	}
 
+	private void Pause(InputAction.CallbackContext ctx)
+	{
+		_isPaused = !_isPaused;
+		FirePauseEvent();
+
+		Time.timeScale = _isPaused ? 0 : 1;
+		_pauseScreen.TogglePause(_isPaused, ShouldQuit);
+
+		void ShouldQuit(bool shouldQuit)
+		{
+			Pause(ctx);
+			if(shouldQuit)
+			{
+				Quit(ctx);
+			}
+		}
+	}
+
 	private void GameOver()
 	{
 		_gameOverUI.SetActive(true);
-		InputManager.SwitchToMenuInputMap();
+		InputManager.GameOver.Enable();
 	}
 
 	private void SetScore(int score)
@@ -190,11 +226,16 @@ public class GameManager : MonoBehaviour
 		FireLivesUpdatedEvent(lives);
 	}
 
+	private void SetPlayerNextLevel(bool isPlayerNextLevel)
+	{
+		PlayerNextLevel = isPlayerNextLevel;
+		FirePlayerNextLevelEvent();
+	}
+
 	private void Quit(InputAction.CallbackContext ctx)
 	{
 		Application.Quit();
 	}
 
 	#endregion
-
 }
