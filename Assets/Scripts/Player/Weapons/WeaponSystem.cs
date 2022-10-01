@@ -9,7 +9,7 @@ public class WeaponSystem : MonoBehaviour
 
 		[Header("Game Objects")]
 		[SerializeField]
-		private AudioSource _audioSource;
+		private SFXManager _sfxManager;
 
 		[SerializeField]
 		private GameObject _dualBarrels;
@@ -119,6 +119,7 @@ public class WeaponSystem : MonoBehaviour
 						}
 
 						_fireRate++;
+						_sfxManager.PlaySFX(AudioClips.FireRate);
 						FireFireRateUpdatedEvent();
 					}
 					break;
@@ -130,6 +131,7 @@ public class WeaponSystem : MonoBehaviour
 						_dualBarrels.SetActive(_dualShotEnabled);
 						_barrelTips.Clear();
 						_barrelTips.EnqueueRange(_wingBarrelTips);
+						_sfxManager.PlaySFX(AudioClips.DualShot);
 						FireDualBarrelsUpdatedEvent();
 					}
 					break;
@@ -195,7 +197,7 @@ public class WeaponSystem : MonoBehaviour
 			Bullet bullet = Instantiate(_bulletPrefab, barrelTip.position, barrelTip.rotation);
 			bullet.Project(barrelTip.up);
 
-			_audioSource.Play();
+			_sfxManager.PlaySFX(AudioClips.ShotFired);
 		}
 
 		protected virtual void HandleSubscriptions(bool subscribe)
